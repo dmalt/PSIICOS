@@ -1,5 +1,6 @@
 %% Set params
-FolderName = 'C:/brainstorm_db/PSIICOS/data/';
+% FolderName = 'C:/brainstorm_db/PSIICOS/data/';
+FolderName = '/home/dmalt/PSIICOS_osadtchii/data/';
 bUseHR = false;
 ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
@@ -11,12 +12,15 @@ bLoadTrials = true;
 bComputePLI = false;
 Fsamp = 500;
 [b,a] = butter(5,Band/(Fsamp/2));
-Protocol = bst_get('ProtocolStudies','PSIICOS');
+run('/home/dmalt/fif_matlab/brainstorm3/brainstorm(''nogui'')');
+% Protocol = bst_get('ProtocolStudies','PSIICOS');
+Protocol = bst_get('ProtocolStudies','PSIICOS_osadtchii');
 clear ConData;
 fprintf('Loading real data from BST database.. \n');
 %% Load data and compute cross-spectral matrix 
 ConditionsFound = 0;
 clear ConData;
+
 sc = 1;
 for c = 1:length(Conditions)
     for s = 1:length(Protocol.Study)
@@ -29,7 +33,7 @@ for c = 1:length(Conditions)
                     ConData{sc}.HM_LR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
                 end
             end;
-            sc = sc+1;
+            sc = sc + 1;
         end;
     end;
 end;
@@ -40,36 +44,36 @@ GainSVDTh = 0.01;
 Nch    = length(ChUsed);
 for c = 1:length(ConData)
     ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc,1);
-    ConData{c}.G2dLR = zeros(Nch,ConData{c}.NsitesLR*2);
+    ConData{c}.G2dLR = zeros(Nch,ConData{c}.NsitesLR * 2);
     % reduce tangent space
     range = 1:2;
     for i=1:ConData{c}.NsitesLR
-        g = [ConData{c}.HM_LR.Gain(ChUsed,1+3*(i-1)) ...
-             ConData{c}.HM_LR.Gain(ChUsed,2+3*(i-1)) ...
-             ConData{c}.HM_LR.Gain(ChUsed,3+3*(i-1))];
+        g = [ConData{c}.HM_LR.Gain(ChUsed,1 + 3 * (i - 1)) ...
+             ConData{c}.HM_LR.Gain(ChUsed,2 + 3 * (i - 1)) ...
+             ConData{c}.HM_LR.Gain(ChUsed,3 + 3 * (i - 1))];
         [u sv v] = svd(g);
-        gt = g*v(:,1:2);
-        ConData{c}.G2dLR(:,range) = gt*diag(1./sqrt(sum(gt.^2,1)));
+        gt = g * v(:,1:2);
+        ConData{c}.G2dLR(:,range) = gt * diag(1 ./ sqrt(sum(gt .^ 2, 1)));
         range = range + 2;
     end;
     
     %reduce sensor space
-    [ug sg vg] = spm_svd(ConData{c}.G2dLR*ConData{c}.G2dLR',GainSVDTh);
+    [ug sg vg] = spm_svd(ConData{c}.G2dLR * ConData{c}.G2dLR', GainSVDTh);
     ConData{c}.UP = ug';
-    ConData{c}.G2dLRU = ConData{c}.UP*ConData{c}.G2dLR;
+    ConData{c}.G2dLRU = ConData{c}.UP * ConData{c}.G2dLR;
     
     if(bUseHR)
-        ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc,1);
-        ConData{c}.G2dHR = zeros(Nch,ConData{c}.NsitesHR*2);
+        ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
+        ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
         % reduce tangent space
         range = 1:2;
         for i=1:ConData{c}.NsitesHR
-            g = [ConData{c}.HM_HR.Gain(ChUsed,1+3*(i-1)) ...
-                 ConData{c}.HM_HR.Gain(ChUsed,2+3*(i-1)) ...
-                 ConData{c}.HM_HR.Gain(ChUsed,3+3*(i-1))];
+            g = [ConData{c}.HM_HR.Gain(ChUsed, 1 + 3 * (i - 1)) ...
+                 ConData{c}.HM_HR.Gain(ChUsed, 2 + 3 * (i - 1)) ...
+                 ConData{c}.HM_HR.Gain(ChUsed, 3 + 3 * (i - 1))];
             [u sv v] = svd(g);
             gt = g*v(:,1:2);
-            ConData{c}.G2dHR(:,range) = gt*diag(1./sqrt(sum(gt.^2,1)));
+            ConData{c}.G2dHR(:,range) = gt * diag(1 ./ sqrt(sum(gt .^ 2, 1)));
             range = range + 2;
         end;
     end;
@@ -107,21 +111,23 @@ for c = 1:length(Conditions)
                 end; % trials t
                 fprintf(' -> Done\n');
             end;
-            sc = sc+1;
+            sc = sc + 1;
          end;
     end;
 end;
 disp('Saving ... \n');
-save('c:\mywriteups\irAPMusicPaper\10SubjData.mat','-v7.3');
+% save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
+save('/home/dmalt/ps/10SubjData.mat','-v7.3');
 return
-load('c:\mywriteups\irAPMusicPaper\10SubjData.mat');
+load('/home/dmalt/ps/10SubjData.mat');
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 % do band-pass filtering and create ConDataBand
-for sc = 1:length(ConData)
+ for sc = 1:length(ConData)
     for t = 1:size(ConData{sc}.Trials,3)
-        [~, ind0] =min(abs(aux.Time-TimeRange(1)));
-        [~, ind1] =min(abs(aux.Time-TimeRange(2)));
-        T = ind1-ind0+1; 
-        tmp = filtfilt(b,a,(ConData{sc}.Trials(:,:,t))')';
+        [~, ind0] = min(abs(aux.Time - TimeRange(1)));
+        [~, ind1] = min(abs(aux.Time - TimeRange(2)));
+        T = ind1 - ind0 + 1; 
+        tmp = filtfilt(b, a, (ConData{sc}.Trials(:,:,t))')';
         ConDataBand{sc}.Trials(:,:,t) = tmp(:,ind0:ind1);
     end;
     sc
@@ -129,18 +135,20 @@ end;
 
 for sc = 1:length(ConDataBand)
     fprintf('%d Computing cross-spectral matrix ....\n' , sc); 
-    ConDataBand{sc}.CrossSpecTime = CrossSpectralTimeseries( ConDataBand{sc}.Trials);
-    ConDataBand{sc}.CrossSpecTimeInd = CrossSpectralTimeseries( ConDataBand{sc}.Trials,true);
-    % compute their projected versions
+    ConDataBand{sc}.CrossSpecTime = CrossSpectralTimeseries(ConDataBand{sc}.Trials); 
+    ConDataBand{sc}.CrossSpecTimeInd = CrossSpectralTimeseries(ConDataBand{sc}.Trials,true);
+    % compute their projected versions                                                      
     [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr] = ProjectAwayFromPowerFixedOr(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,350);
-    ConDataBand{sc}.CrossSpecTimeIndP = ConDataBand{sc}.CrossSpecTimeInd - ConDataBand{sc}.Upwr*ConDataBand{sc}.Upwr'*ConDataBand{sc}.CrossSpecTimeInd;
+    ConDataBand{sc}.CrossSpecTimeIndP = ConDataBand{sc}.CrossSpecTimeInd - ...
+                                        ConDataBand{sc}.Upwr * ConDataBand{sc}.Upwr' * ...
+                                        ConDataBand{sc}.CrossSpecTimeInd;
     %UP
     if(bComputePLI)
-        Trials = zeros(size(ConData{sc}.UP,2),size(ConData{sc}.Trials,2),size(ConData{sc}.Trials,2));
-        for tr = 1:size(ConData{sc}.Trials,3)
-            Trials(:,:,tr) = ConData{sc}.UP'*ConData{sc}.Trials(:,:,tr);
+        Trials = zeros(size(ConData{sc}.UP, 2), size(ConData{sc}.Trials, 2), size(ConData{sc}.Trials, 2));
+        for tr = 1:size(ConData{sc}.Trials, 3)
+            Trials(:,:,tr) = ConData{sc}.UP' * ConData{sc}.Trials(:,:,tr);
         end;
-        ConDataBand{sc}.wPLI =  wPLIMatrix(Trials(:,1:256,:),Band,Fsamp,true);
+        ConDataBand{sc}.wPLI =  wPLIMatrix(Trials(:,1:256,:), Band, Fsamp, true);
     end;
 end;
 
@@ -149,9 +157,9 @@ for s=1:10
     A2 = ConDataBand{10+s}.CrossSpecTimeIndP;
     A1 = ConDataBand{s}.CrossSpecTimeIndP;
     for t = 1:351
-        N = size(ConData{10+s}.UP,1);
-        Ad21 = ConData{10+s}.UP'*reshape(A2(:,t)-A1(t),N,N)*ConData{10+s}.UP;
-        Acc(t) = Acc(t)+sum(Ad21(:));
+        N = size(ConData{10 + s}.UP,1);
+        Ad21 = ConData{10 + s}.UP' * reshape(A2(:,t) - A1(t), N, N) * ConData{10 + s}.UP;
+        Acc(t) = Acc(t) + sum(Ad21(:));
     end;
 end;
 
@@ -163,14 +171,14 @@ end;
 
 range = 75:150;
 figure
-pcntg = 2*1e-3;
+pcntg = 2 * 1e-3;
 for s=1:10
-     C1 = ConDataBand{10+s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
-     C2 = ConDataBand{20+s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
+     C1 = ConDataBand{10 + s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
+     C2 = ConDataBand{20 + s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
      [u ss2 v] = svd([real(C2) imag(C2)]);
-     C1but2 = C1-u(:,1:6)*u(:,1:6)'*C1;
+     C1but2 = C1-u(:,1:6) * u(:,1:6)' * C1;
      [u ss1 v] = svd([real(C1) imag(C1)]);
-     C2but1 = C2-u(:,1:6)*u(:,1:6)'*C2;
+     C2but1 = C2-u(:,1:6) * u(:,1:6)' * C2;
      C = sum(C1but2(:,1:50),2);
 
 %     C2 = ConDataBand{10+s}.CrossSpecTimeIndP(:,75:200);
@@ -180,24 +188,24 @@ for s=1:10
 %     C2but1 = C2-u(:,1:15)*u(:,1:15)'*C2;
 %     C = sum(C2but1(:,1:50),2);
 %    
-    Csq = reshape(C,size(ConData{10+s}.UP,1),size(ConData{10+s}.UP,1));
+    Csq = reshape(C,size(ConData{10 + s}.UP, 1),size(ConData{10 + s}.UP, 1));
     
-    D21{s} = ConData{10+s}.UP'*Csq*ConData{10+s}.UP;
+    D21{s} = ConData{10 + s}.UP' * Csq * ConData{10 + s}.UP;
     M = abs(real(D21{s}));
     %M = (ConDataBand{20+s}.wPLI-ConDataBand{s}.wPLI)-(ConDataBand{10+s}.wPLI-ConDataBand{s}.wPLI);
     [aux, key_srt] = sort(M(:));
-    ind_max = key_srt(fix((1-pcntg)*length(key_srt)):end);
-    th = aux(fix((1-pcntg)*length(key_srt)));
+    ind_max = key_srt(fix((1 - pcntg) * length(key_srt)):end);
+    th = aux(fix((1 - pcntg) * length(key_srt)));
 
-    h = subplot(2,5,s)
-      plot3(ChLoc(1,:),ChLoc(2,:),ChLoc(3,:),'.');
+    h = subplot(2, 5, s)
+      plot3(ChLoc(1,:), ChLoc(2,:), ChLoc(3,:),'.');
 
       hold on
       Pairs{s} = [];
        for i=1:length(ind_max)
           [ii jj]  = ind2sub(size(D21{s}),ind_max(i));
           Pairs{s} = [Pairs{s};[ii jj]];
-          plot3([ChLoc(1,ii) ChLoc(1,jj)],[ChLoc(2,ii) ChLoc(2,jj)],[ChLoc(3,ii) ChLoc(3,jj)],'Color','r');
+          plot3([ChLoc(1, ii) ChLoc(1, jj)],[ChLoc(2, ii) ChLoc(2, jj)],[ChLoc(3, ii) ChLoc(3, jj)], 'Color', 'r');
         end;
         set(h,'View',[0 90])
         axis tight
