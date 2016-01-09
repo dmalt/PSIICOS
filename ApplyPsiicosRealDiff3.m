@@ -11,16 +11,22 @@ Band = [18 21];
 bLoadTrials = true;
 bComputePLI = false;
 Fsamp = 500;
-[b,a] = butter(5,Band/(Fsamp/2));
-run('/home/dmalt/fif_matlab/brainstorm3/brainstorm(''nogui'')');
+[b,a] = butter(5, Band / (Fsamp / 2));
+
+% ---------------- Running brainstorm to read protocol info ------------------------------- %
+brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
+run([brainstorm_path, '(''nogui'')']);    % Start brainstorm without graphical interface
 % Protocol = bst_get('ProtocolStudies','PSIICOS');
-Protocol = bst_get('ProtocolStudies','PSIICOS_osadtchii');
+Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
+run(strcat(brainstorm_path, '(''stop'')'));    % Stop brainstorm 
+% ----------------------------------------------------------------------------------------- %
+
 clear ConData;
 fprintf('Loading real data from BST database.. \n');
 %% Load data and compute cross-spectral matrix 
 ConditionsFound = 0;
 clear ConData;
-
+%---------- Loading head models for subjects from brainstorm folders ---------------------------- %
 sc = 1;
 for c = 1:length(Conditions)
     for s = 1:length(Protocol.Study)
@@ -37,9 +43,11 @@ for c = 1:length(Conditions)
         end;
     end;
 end;
-%% Reduce tangent dimension and transform into virtual sensors 
-% the forward model is the same for both conditions
-% so pick the first oneCOnData
+% ------------- end of loading head models for subjects ----------------------------------------- %
+
+% -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
+% ---------the forward model is the same for both conditions ------------------------------------ %
+% ---------so pick the first oneCOnData --------------------------------------------------------- %
 GainSVDTh = 0.01;
 Nch    = length(ChUsed);
 for c = 1:length(ConData)
@@ -52,7 +60,7 @@ for c = 1:length(ConData)
              ConData{c}.HM_LR.Gain(ChUsed,2 + 3 * (i - 1)) ...
              ConData{c}.HM_LR.Gain(ChUsed,3 + 3 * (i - 1))];
         [u sv v] = svd(g);
-        gt = g * v(:,1:2);
+        gt = g * v(:, 1:2);
         ConData{c}.G2dLR(:,range) = gt * diag(1 ./ sqrt(sum(gt .^ 2, 1)));
         range = range + 2;
     end;
@@ -79,7 +87,9 @@ for c = 1:length(ConData)
     end;
     c;
 end;
+% -------------- end of reducing tangent dimension ----------------------------- %
 
+% --------------- Load trials from brainstorm -----------------------------------%
 sc = 1;
 ConditionsFound = 0;
 for c = 1:length(Conditions)
@@ -115,6 +125,8 @@ for c = 1:length(Conditions)
          end;
     end;
 end;
+% ------------------------- end of loading trials from brainstorm --------------------- %
+
 disp('Saving ... \n');
 % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
 save('/home/dmalt/ps/10SubjData.mat','-v7.3');
