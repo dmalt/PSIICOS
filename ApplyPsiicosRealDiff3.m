@@ -1,6 +1,6 @@
 %% Set params
-% FolderName = 'C:/brainstorm_db/PSIICOS/data/';
-FolderName = '/home/dmalt/PSIICOS_osadtchii/data/';
+% ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
+ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
 bUseHR = false;
 ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
@@ -27,25 +27,7 @@ fprintf('Loading real data from BST database.. \n');
 ConditionsFound = 0;
 clear ConData;
 %---------- Loading head models for subjects from brainstorm folders ---------------------------- %
-sc = 1;
-for c = 1:length(Conditions)
-    for s = 1:length(Protocol.Study)
-        if(strcmp(Protocol.Study(s).Name,Conditions{c}))
-            fprintf('Found study condition %s \n ', Conditions{c}); 
-            for hm = 1:length(Protocol.Study(s).HeadModel)
-                if(strcmp(Protocol.Study(s).HeadModel(hm).Comment,'Overlapping spheres_HR'))
-                    if bUseHR
-                        ConData{sc}.HM_HR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
-                    end
-                else
-                    ConData{sc}.HM_LR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
-                end
-            end;
-            sc = sc + 1;
-        end;
-    end;
-end;
-% ------------- end of loading head models for subjects ----------------------------------------- %
+ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
 % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
 % ---------the forward model is the same for both conditions ------------------------------------ %
@@ -53,16 +35,12 @@ end;
 GainSVDTh = 0.01;
 Nch = length(ChUsed);
 N_conditions_total = length(ConData); % Number of conditions recorded for all subjects altogether
-
-
-
 for c = 1:N_conditions_total
     ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc, 1);   
     ConData{c}.G2dLR = zeros(Nch, ConData{c}.NsitesLR * 2);
-    G_test = zeros(Nch, ConData{c}.NsitesLR * 2);
-    % reduce tangent space
-    
+    % reduce tangent space    
     ConData{c}.G2dLR = ReduceTangentSpace(ConData{c}.NsitesLR, ConData{c}.HM_LR.Gain, ChUsed);
+
     %reduce sensor space
     [ug sg vg] = spm_svd(ConData{c}.G2dLR * ConData{c}.G2dLR', GainSVDTh);
     ConData{c}.UP = ug';
@@ -73,6 +51,8 @@ for c = 1:N_conditions_total
         ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
         % reduce tangent space
         ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
+        % Probably need to add here a part for sensor space reduction in case of 
+        % high resolution gain matrix
     end;
     c;
 end;
@@ -81,7 +61,7 @@ end;
 % --------------- Load trials from brainstorm -----------------------------------%
 sc = 1;
 ConditionsFound = 0;
-for c = 1:length(Conditions)
+for c = 1:Ncond
     for s = 1:length(Protocol.Study)
         if(strcmp(Protocol.Study(s).Name,Conditions{c}))
             fprintf('Found study condition %s \n : ', Conditions{c}); 
@@ -91,7 +71,9 @@ for c = 1:length(Conditions)
     %            UP = ConData{fix((sc-1)/Ncond)*Ncond+1}.UP;
                 UP = ConData{sc}.UP;
                 for iTrial = 1:ConData{sc}.NumTrials
-                    aux = load([FolderName Protocol.Study(s).Data(iTrial).FileName]);
+                    % In order to save memory we use aux structure on which
+                    % we do PCA and store the result in structure ConData
+                    aux = load([ProtocolDir Protocol.Study(s).Data(iTrial).FileName]);
                     if iTrial == 1
                          ConData{sc}.Trials = zeros(size(UP, 1), length(aux.Time));
                          ConData{sc}.Time = aux.Time;
