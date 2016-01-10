@@ -1,4 +1,4 @@
-%% Set params
+% --------------------------- Set parameters --------------------------------------------- %
 % ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
 bUseHR = false;
@@ -13,7 +13,7 @@ bComputePLI = false;
 Fsamp = 500;
 [b,a] = butter(5, Band / (Fsamp / 2));
 
-% ---------------- Running brainstorm to read protocol info ------------------------------- %
+% ---------------- Run brainstorm to read protocol info ----------------------------------- %
 brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
 run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
 % Protocol = bst_get('ProtocolStudies','PSIICOS');
@@ -26,37 +26,13 @@ fprintf('Loading real data from BST database.. \n');
 %% Load data and compute cross-spectral matrix 
 ConditionsFound = 0;
 clear ConData;
-%---------- Loading head models for subjects from brainstorm folders ---------------------------- %
+%---------- Load head models for subjects from brainstorm folders ------------------------------- %
 ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
 % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
 % ---------the forward model is the same for both conditions ------------------------------------ %
 % ---------so pick the first oneCOnData --------------------------------------------------------- %
-GainSVDTh = 0.01;
-Nch = length(ChUsed);
-N_conditions_total = length(ConData); % Number of conditions recorded for all subjects altogether
-for c = 1:N_conditions_total
-    ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc, 1);   
-    ConData{c}.G2dLR = zeros(Nch, ConData{c}.NsitesLR * 2);
-    % reduce tangent space    
-    ConData{c}.G2dLR = ReduceTangentSpace(ConData{c}.NsitesLR, ConData{c}.HM_LR.Gain, ChUsed);
-
-    %reduce sensor space
-    [ug sg vg] = spm_svd(ConData{c}.G2dLR * ConData{c}.G2dLR', GainSVDTh);
-    ConData{c}.UP = ug';
-    ConData{c}.G2dLRU = ConData{c}.UP * ConData{c}.G2dLR;
-    
-    if(bUseHR)
-        ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
-        ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
-        % reduce tangent space
-        ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
-        % Probably need to add here a part for sensor space reduction in case of 
-        % high resolution gain matrix
-    end;
-    c;
-end;
-% -------------- end of reducing tangent dimension ----------------------------- %
+ConData = ReduceDimensions(ConData, ChUsed, bUseHR)
 
 % --------------- Load trials from brainstorm -----------------------------------%
 sc = 1;
