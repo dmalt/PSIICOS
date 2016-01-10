@@ -15,10 +15,10 @@ Fsamp = 500;
 
 % ---------------- Running brainstorm to read protocol info ------------------------------- %
 brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
-run([brainstorm_path, '(''nogui'')']);    % Start brainstorm without graphical interface
+run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
 % Protocol = bst_get('ProtocolStudies','PSIICOS');
 Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
-run(strcat(brainstorm_path, '(''stop'')'));    % Stop brainstorm 
+run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm 
 % ----------------------------------------------------------------------------------------- %
 
 clear ConData;
@@ -34,7 +34,9 @@ for c = 1:length(Conditions)
             fprintf('Found study condition %s \n ', Conditions{c}); 
             for hm = 1:length(Protocol.Study(s).HeadModel)
                 if(strcmp(Protocol.Study(s).HeadModel(hm).Comment,'Overlapping spheres_HR'))
-                    ConData{sc}.HM_HR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
+                    if bUseHR
+                        ConData{sc}.HM_HR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
+                    end
                 else
                     ConData{sc}.HM_LR = load([FolderName Protocol.Study(s).HeadModel(hm).FileName]);
                 end
@@ -49,22 +51,18 @@ end;
 % ---------the forward model is the same for both conditions ------------------------------------ %
 % ---------so pick the first oneCOnData --------------------------------------------------------- %
 GainSVDTh = 0.01;
-Nch    = length(ChUsed);
-for c = 1:length(ConData)
-    ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc,1);
-    ConData{c}.G2dLR = zeros(Nch,ConData{c}.NsitesLR * 2);
+Nch = length(ChUsed);
+N_conditions_total = length(ConData); % Number of conditions recorded for all subjects altogether
+
+
+
+for c = 1:N_conditions_total
+    ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc, 1);   
+    ConData{c}.G2dLR = zeros(Nch, ConData{c}.NsitesLR * 2);
+    G_test = zeros(Nch, ConData{c}.NsitesLR * 2);
     % reduce tangent space
-    range = 1:2;
-    for i=1:ConData{c}.NsitesLR
-        g = [ConData{c}.HM_LR.Gain(ChUsed,1 + 3 * (i - 1)) ...
-             ConData{c}.HM_LR.Gain(ChUsed,2 + 3 * (i - 1)) ...
-             ConData{c}.HM_LR.Gain(ChUsed,3 + 3 * (i - 1))];
-        [u sv v] = svd(g);
-        gt = g * v(:, 1:2);
-        ConData{c}.G2dLR(:,range) = gt * diag(1 ./ sqrt(sum(gt .^ 2, 1)));
-        range = range + 2;
-    end;
     
+    ConData{c}.G2dLR = ReduceTangentSpace(ConData{c}.NsitesLR, ConData{c}.HM_LR.Gain, ChUsed);
     %reduce sensor space
     [ug sg vg] = spm_svd(ConData{c}.G2dLR * ConData{c}.G2dLR', GainSVDTh);
     ConData{c}.UP = ug';
@@ -74,16 +72,7 @@ for c = 1:length(ConData)
         ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
         ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
         % reduce tangent space
-        range = 1:2;
-        for i=1:ConData{c}.NsitesHR
-            g = [ConData{c}.HM_HR.Gain(ChUsed, 1 + 3 * (i - 1)) ...
-                 ConData{c}.HM_HR.Gain(ChUsed, 2 + 3 * (i - 1)) ...
-                 ConData{c}.HM_HR.Gain(ChUsed, 3 + 3 * (i - 1))];
-            [u sv v] = svd(g);
-            gt = g*v(:,1:2);
-            ConData{c}.G2dHR(:,range) = gt * diag(1 ./ sqrt(sum(gt .^ 2, 1)));
-            range = range + 2;
-        end;
+        ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
     end;
     c;
 end;
@@ -101,23 +90,23 @@ for c = 1:length(Conditions)
                 fprintf('Loading Trials (Max %d) : ', ConData{sc}.NumTrials); 
     %            UP = ConData{fix((sc-1)/Ncond)*Ncond+1}.UP;
                 UP = ConData{sc}.UP;
-                for t = 1:ConData{sc}.NumTrials
-                    aux = load([FolderName Protocol.Study(s).Data(t).FileName]);
-                    if(t==1)
-                         ConData{sc}.Trials = zeros(size(UP,1),length(aux.Time));
+                for iTrial = 1:ConData{sc}.NumTrials
+                    aux = load([FolderName Protocol.Study(s).Data(iTrial).FileName]);
+                    if iTrial == 1
+                         ConData{sc}.Trials = zeros(size(UP, 1), length(aux.Time));
                          ConData{sc}.Time = aux.Time;
-                         ConData{sc}.Fsamp = 1./(aux.Time(2)-aux.Time(1));
+                         ConData{sc}.Fsamp = 1. / (aux.Time(2) - aux.Time(1));
                     end;
                     %tmp = filtfilt(b,a,(UP*aux.F(ChUsed,:))')';
-                    %ConData{sc}.Trials(:,:,t) = tmp(:,ind0:ind1);
-                    ConData{sc}.Trials(:,:,t) = UP*aux.F(ChUsed,:);
-                    %ConData{sc}.Trials0(:,:,t) = aux.F(ChUsed,:);
-                    if t>1
-                        for tt=0:log10(t-1)
+                    %ConData{sc}.Trials(:,:,iTrial) = tmp(:,ind0:ind1);
+                    ConData{sc}.Trials(:,:,iTrial) = UP * aux.F(ChUsed,:);
+                    %ConData{sc}.Trials0(:,:,iTrial) = aux.F(ChUsed,:);
+                    if iTrial > 1
+                        for tt=0:log10(iTrial - 1)
                             fprintf('\b'); % delete previous counter display
                         end
                     end
-                    fprintf('%d', t);
+                    fprintf('%d', iTrial);
                 end; % trials t
                 fprintf(' -> Done\n');
             end;
@@ -134,7 +123,7 @@ return
 load('/home/dmalt/ps/10SubjData.mat');
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 % do band-pass filtering and create ConDataBand
- for sc = 1:length(ConData)
+ for sc = 1:N_conditions_total
     for t = 1:size(ConData{sc}.Trials,3)
         [~, ind0] = min(abs(aux.Time - TimeRange(1)));
         [~, ind1] = min(abs(aux.Time - TimeRange(2)));
@@ -176,7 +165,8 @@ for s=1:10
 end;
 
 
-load('c:\MyWriteups\iRAPMusicPaper\Simulations\MEGSensors.mat');
+% load('c:\MyWriteups\iRAPMusicPaper\Simulations\MEGSensors.mat');
+load('/home/dmalt/ps/MEGSensors.mat');
 for i = 1:length(ChUsed)
     ChLoc(:,i) = MEGSensors.Channel(ChUsed(i)).Loc(:,1);
 end;
@@ -244,7 +234,7 @@ Ep1Ind = Ep1-repmat(mean(Ep1,1),size(Ep1,1),1);
 Ep2Ind = Ep2-repmat(mean(Ep1,1),size(Ep1,1),1);
 
 
-for sc = 1:length(ConData)
+for sc = 1:N_conditions_total
     SubjInd = fix((sc-1)/Ncond)*Ncond+1;
     ConData{sc}.CrossSpecTimeNoVC = ProjectAwayFromPower(ConData{sc}.CrossSpecTime,ConData{SubjInd}.G2dLRU);
 end;
