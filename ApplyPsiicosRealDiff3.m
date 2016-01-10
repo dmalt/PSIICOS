@@ -23,60 +23,21 @@ run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm
 
 clear ConData;
 fprintf('Loading real data from BST database.. \n');
-%% Load data and compute cross-spectral matrix 
-ConditionsFound = 0;
-clear ConData;
+
 %---------- Load head models for subjects from brainstorm folders ------------------------------- %
 ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
 % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
-% ---------the forward model is the same for both conditions ------------------------------------ %
-% ---------so pick the first oneCOnData --------------------------------------------------------- %
-ConData = ReduceDimensions(ConData, ChUsed, bUseHR)
+ConData = ReduceDimensions(ConData, ChUsed, bUseHR);
 
-% --------------- Load trials from brainstorm -----------------------------------%
-sc = 1;
-ConditionsFound = 0;
-for c = 1:Ncond
-    for s = 1:length(Protocol.Study)
-        if(strcmp(Protocol.Study(s).Name,Conditions{c}))
-            fprintf('Found study condition %s \n : ', Conditions{c}); 
-            ConData{sc}.NumTrials = length(Protocol.Study(s).Data);
-            if(bLoadTrials)
-                fprintf('Loading Trials (Max %d) : ', ConData{sc}.NumTrials); 
-    %            UP = ConData{fix((sc-1)/Ncond)*Ncond+1}.UP;
-                UP = ConData{sc}.UP;
-                for iTrial = 1:ConData{sc}.NumTrials
-                    % In order to save memory we use aux structure on which
-                    % we do PCA and store the result in structure ConData
-                    aux = load([ProtocolDir Protocol.Study(s).Data(iTrial).FileName]);
-                    if iTrial == 1
-                         ConData{sc}.Trials = zeros(size(UP, 1), length(aux.Time));
-                         ConData{sc}.Time = aux.Time;
-                         ConData{sc}.Fsamp = 1. / (aux.Time(2) - aux.Time(1));
-                    end;
-                    %tmp = filtfilt(b,a,(UP*aux.F(ChUsed,:))')';
-                    %ConData{sc}.Trials(:,:,iTrial) = tmp(:,ind0:ind1);
-                    ConData{sc}.Trials(:,:,iTrial) = UP * aux.F(ChUsed,:);
-                    %ConData{sc}.Trials0(:,:,iTrial) = aux.F(ChUsed,:);
-                    if iTrial > 1
-                        for tt=0:log10(iTrial - 1)
-                            fprintf('\b'); % delete previous counter display
-                        end
-                    end
-                    fprintf('%d', iTrial);
-                end; % trials t
-                fprintf(' -> Done\n');
-            end;
-            sc = sc + 1;
-         end;
-    end;
-end;
-% ------------------------- end of loading trials from brainstorm --------------------- %
+% --------------- Load trials from brainstorm ---------------------------------------%
+ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
 
 disp('Saving ... \n');
 % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
 save('/home/dmalt/ps/10SubjData.mat','-v7.3');
+
+
 return
 load('/home/dmalt/ps/10SubjData.mat');
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
