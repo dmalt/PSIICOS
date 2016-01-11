@@ -29,6 +29,10 @@ function ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, Protoc
 %   ConData{c}.NumTials     - scalar; number of trials for condition 'c'
 %   ConData{c}.Trials       - {N_sensors_reduced x Ntimes x NumTrials}
 %                             trials data
+%   ConData{c}.Time         - {1 x Ntimes} discrete time array with zero 
+%                             locked to stimulus. Prestimulus times are 
+%                             negative.
+%   ConData{c}.Fsamp        - scalar; sampling frequency for condition c
 % ________________________________________________________________________
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
