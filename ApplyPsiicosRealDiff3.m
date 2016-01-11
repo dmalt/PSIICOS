@@ -13,34 +13,37 @@ bComputePLI = false;
 Fsamp = 500;
 [b,a] = butter(5, Band / (Fsamp / 2));
 
-% ---------------- Run brainstorm to read protocol info ----------------------------------- %
-brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
-run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
-% Protocol = bst_get('ProtocolStudies','PSIICOS');
-Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
-run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm 
-% ----------------------------------------------------------------------------------------- %
+if exist('./10SubjData.mat', 'file')
+    fprintf('Loading data from 10SubjData.mat. This might take a while...\n')
+    load('./10SubjData.mat');
+else
+    % ---------------- Run brainstorm to read protocol info ----------------------------------- %
+    brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
+    run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
+    % Protocol = bst_get('ProtocolStudies','PSIICOS');
+    Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
+    run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm 
+    % ----------------------------------------------------------------------------------------- %
 
-clear ConData;
-fprintf('Loading real data from BST database.. \n');
+    clear ConData;
+    fprintf('Loading real data from BST database.. \n');
 
-%---------- Load head models for subjects from brainstorm folders ------------------------------- %
-ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
+    %---------- Load head models for subjects from brainstorm folders ------------------------------- %
+    ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
-% -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
-ConData = ReduceDimensions(ConData, ChUsed, bUseHR);
+    % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
+    ConData = ReduceDimensions(ConData, ChUsed, bUseHR);
 
-% --------------- Load trials from brainstorm ---------------------------------------%
-ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
+    % --------------- Load trials from brainstorm ---------------------------------------%
+    ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
 
-disp('Saving ... \n');
-% save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
-save('/home/dmalt/ps/10SubjData.mat','-v7.3');
-
-
-return
-load('/home/dmalt/ps/10SubjData.mat');
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    disp('Saving ... \n');
+    % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
+    save('./10SubjData.mat','-v7.3');
+end
+N_conditions_total = length(ConData);
+% return
+% load('/home/dmalt/ps/10SubjData.mat');
 % do band-pass filtering and create ConDataBand
  for sc = 1:N_conditions_total
     for t = 1:size(ConData{sc}.Trials,3)
@@ -52,7 +55,7 @@ load('/home/dmalt/ps/10SubjData.mat');
     end;
     sc
 end;
-
+return;
 for sc = 1:length(ConDataBand)
     fprintf('%d Computing cross-spectral matrix ....\n' , sc); 
     ConDataBand{sc}.CrossSpecTime = CrossSpectralTimeseries(ConDataBand{sc}.Trials); 
