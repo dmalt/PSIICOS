@@ -11,9 +11,9 @@ function Gain_reduced = ReduceTangentSpace(Nsites, Gain, ChUsed)
 %   Gain          - {Nchannels x 3 * Nsources} forward operator 
 %                   gain matrix
 %   ChUsed        - {1 x NumOfChannelsUsed} array of indeces of
-%                     channels that are left for analysis; 
-%                     to use gradiometers only go for
-%                     ChUsed = 1:306; ChUsed(3:3:end) = []; 
+%                   channels that are left for analysis; 
+%                   to use gradiometers only go for
+%                   ChUsed = 1:306; ChUsed(3:3:end) = []; 
 % OUTPUTS:
 %   Gain_reduced  - {Nchannels x 2 * Nsources} reduced forward 
 %                     operator matrix with only two dipols per

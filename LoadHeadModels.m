@@ -25,24 +25,24 @@ function ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR)
 %                       ConData{i}.HM_LR and ConData{i}.HM_HR 
 % __________________________________________________________________________
 % Alex Ossadtchi ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
+    ConditionsFound = 0;
+    Ncond = length(Conditions);
+    sc = 1;
+    for c = 1:Ncond
+        for s = 1:length(Protocol.Study)
+            if(strcmp(Protocol.Study(s).Name, Conditions{c}))
+                fprintf('Found study condition %s \n ', Conditions{c}); 
+                for hm = 1:length(Protocol.Study(s).HeadModel)
 
-Ncond = length(Conditions);
-sc = 1;
-for c = 1:Ncond
-    for s = 1:length(Protocol.Study)
-        if(strcmp(Protocol.Study(s).Name, Conditions{c}))
-            fprintf('Found study condition %s \n ', Conditions{c}); 
-            for hm = 1:length(Protocol.Study(s).HeadModel)
-
-                if(strcmp(Protocol.Study(s).HeadModel(hm).Comment,'Overlapping spheres_HR'))
-                    if bUseHR
-                        ConData{sc}.HM_HR = load([ProtocolDir Protocol.Study(s).HeadModel(hm).FileName]);
+                    if(strcmp(Protocol.Study(s).HeadModel(hm).Comment,'Overlapping spheres_HR'))
+                        if bUseHR
+                            ConData{sc}.HM_HR = load([ProtocolDir Protocol.Study(s).HeadModel(hm).FileName]);
+                        end
+                    else
+                        ConData{sc}.HM_LR = load([ProtocolDir Protocol.Study(s).HeadModel(hm).FileName]);
                     end
-                else
-                    ConData{sc}.HM_LR = load([ProtocolDir Protocol.Study(s).HeadModel(hm).FileName]);
-                end
+                end;
+                sc = sc + 1;
             end;
-            sc = sc + 1;
         end;
     end;
-end;
