@@ -2,6 +2,8 @@
 % ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
 bUseHR = false;
+bKeepLR = false;
+bClearHM = true;
 ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
@@ -14,7 +16,7 @@ Fsamp = 500;
 [b,a] = butter(5, Band / (Fsamp / 2));
 
 if exist('./10SubjData.mat', 'file')
-    fprintf('Loading data from 10SubjData.mat. This might take a while...\n')
+    fprintf('Loading data from ./10SubjData.mat. This might take a while...\n')
     load('./10SubjData.mat');
 else
     % ---------------- Run brainstorm to read protocol info ----------------------------------- %
@@ -32,7 +34,7 @@ else
     ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
     % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
-    ConData = ReduceDimensions(ConData, ChUsed, bUseHR);
+    ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM);
 
     % --------------- Load trials from brainstorm ---------------------------------------%
     ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
@@ -43,6 +45,8 @@ else
 end
 % ---------------- Band-pass filter the data ------------------------------- %
 ConDataBand = BandPassFilter(ConData, Band, TimeRange, Fsamp);
+ConData = ClearTrials(ConData);
+save('./ConDataNoTrials.mat', 'ConData', '-v7.3');
 
 return;
 for sc = 1:length(ConDataBand)

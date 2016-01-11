@@ -1,4 +1,4 @@
-function ConData = ReduceDimensions(ConData, ChUsed, bUseHR)
+function ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM)
 % -------------------------------------------------------------------------
 % ReduceDimensions: for each condition recording in ConData performs PCA
 % on a gain matrix to confine three dipoles to two in a tangential plane 
@@ -40,22 +40,28 @@ function ConData = ReduceDimensions(ConData, ChUsed, bUseHR)
     N_conditions_total = length(ConData); % Number of conditions recorded for all subjects altogether
     for c = 1:N_conditions_total
         ConData{c}.NsitesLR = size(ConData{c}.HM_LR.GridLoc, 1);   
-        ConData{c}.G2dLR = zeros(Nch, ConData{c}.NsitesLR * 2);
+        G2dLR = zeros(Nch, ConData{c}.NsitesLR * 2);
         % reduce tangent space    
-        ConData{c}.G2dLR = ReduceTangentSpace(ConData{c}.NsitesLR, ConData{c}.HM_LR.Gain, ChUsed);
+        G2dLR = ReduceTangentSpace(ConData{c}.NsitesLR, ConData{c}.HM_LR.Gain, ChUsed);
 
         %reduce sensor space
-        [ug sg vg] = spm_svd(ConData{c}.G2dLR * ConData{c}.G2dLR', GainSVDTh);
+        [ug sg vg] = spm_svd(G2dLR * G2dLR', GainSVDTh);
         ConData{c}.UP = ug';
-        ConData{c}.G2dLRU = ConData{c}.UP * ConData{c}.G2dLR;
-        
-        if(bUseHR)
-            ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
-            ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
-            % reduce tangent space
-            ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
-            % Probably need to add here a part for sensor space reduction in case of 
-            % high resolution gain matrix
-        end;
+        ConData{c}.G2dLRU = ConData{c}.UP * G2dLR;
+        if bKeepLR
+            ConData{c}.G2dLR = G2dLR;
+        end
+        if bClearHM
+            ConData{c} = rmfield(ConData{c}, 'HM_LR');
+        end
+
+        % if(bUseHR)
+        %     ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
+        %     ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
+        %     % reduce tangent space
+        %     ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
+        %     % Probably need to add here a part for sensor space reduction in case of 
+        %     % high resolution gain matrix
+        % end;
         c;
     end;
