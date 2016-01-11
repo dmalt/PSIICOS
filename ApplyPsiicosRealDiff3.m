@@ -39,22 +39,11 @@ else
 
     disp('Saving ... \n');
     % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
-    save('./10SubjData.mat','-v7.3');
+    save('./10SubjData.mat', 'ConData', '-v7.3');
 end
-N_conditions_total = length(ConData);
-% return
-% load('/home/dmalt/ps/10SubjData.mat');
-% do band-pass filtering and create ConDataBand
- for sc = 1:N_conditions_total
-    for t = 1:size(ConData{sc}.Trials,3)
-        [~, ind0] = min(abs(aux.Time - TimeRange(1)));
-        [~, ind1] = min(abs(aux.Time - TimeRange(2)));
-        T = ind1 - ind0 + 1; 
-        tmp = filtfilt(b, a, (ConData{sc}.Trials(:,:,t))')';
-        ConDataBand{sc}.Trials(:,:,t) = tmp(:,ind0:ind1);
-    end;
-    sc
-end;
+% ---------------- Band-pass filter the data ------------------------------- %
+ConDataBand = BandPassFilter(ConData, Band, TimeRange, Fsamp);
+
 return;
 for sc = 1:length(ConDataBand)
     fprintf('%d Computing cross-spectral matrix ....\n' , sc); 
