@@ -8,7 +8,7 @@ ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
 Ncond = length(Conditions);
-Band = [18 21];
+Band = [15 30];
 BandName = 'beta';
 %Band = [8 12];
 bLoadTrials = true;
@@ -16,89 +16,74 @@ bComputePLI = false;
 Fsamp = 500;
 [b,a] = butter(5, Band / (Fsamp / 2));
 % ---------------------------------------------------------------------------------------- %
-
-if exist(['./ConData_', BandName, '.mat'], 'file')
-    load(['./ConData_', BandName, '.mat']);
+if exist(['./ConData_', BandName,'_CT.mat'], 'file')
+    load(['./ConData_', BandName,'_CT.mat']);
 else
-    if exist('./10SubjData.mat', 'file')
-        fprintf('Loading data from ./10SubjData.mat. This might take a while...\n')
-        load('./10SubjData.mat');
+    if exist(['./ConData_', BandName, '.mat'], 'file')
+        load(['./ConData_', BandName, '.mat']);
     else
-        % ---------------- Run brainstorm to read protocol info ----------------------------------- %
-        brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
-        run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
-        % Protocol = bst_get('ProtocolStudies','PSIICOS');
-        Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
-        run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm 
-        % ----------------------------------------------------------------------------------------- %
+        if exist('./10SubjData.mat', 'file')
+            fprintf('Loading data from ./10SubjData.mat. This might take a while...\n')
+            load('./10SubjData.mat');
+        else
+            % ---------------- Run brainstorm to read protocol info ----------------------------------- %
+            brainstorm_path = '/home/dmalt/fif_matlab/brainstorm3/brainstorm';
+            run( [brainstorm_path, '(''nogui'')'] );    % Start brainstorm without graphical interface
+            % Protocol = bst_get('ProtocolStudies','PSIICOS');
+            Protocol = bst_get('ProtocolStudies', 'PSIICOS_osadtchii');
+            run( [brainstorm_path, '(''stop'')'] );    % Stop brainstorm 
+            % ----------------------------------------------------------------------------------------- %
 
-        clear ConData;
-        fprintf('Loading real data from BST database.. \n');
+            clear ConData;
+            fprintf('Loading real data from BST database.. \n');
 
-        %---------- Load head models for subjects from brainstorm folders ------------------------------- %
-        ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
+            %---------- Load head models for subjects from brainstorm folders ------------------------------- %
+            ConData = LoadHeadModels(Conditions, ProtocolDir, Protocol, bUseHR);
 
-        % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
-        ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM);
+            % -------- Reduce tangent dimension and transform into virtual sensors -------------------------- %
+            ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM);
 
-        % --------------- Load trials from brainstorm ---------------------------------------%
-        ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
+            % --------------- Load trials from brainstorm ---------------------------------------%
+            ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed);
 
-        disp('Saving ... \n');
-        % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
-        save('./10SubjData.mat', 'ConData', '-v7.3');
+            disp('Saving ... \n');
+            % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
+            save('./10SubjData.mat', 'ConData', '-v7.3');
+        end
+        % ---------------- Band-pass filter the data ------------------------------- %
+        ConData = BandPassFilter(ConData, Band, TimeRange, Fsamp);
+        % ConData = ClearTrials(ConData);
+        save(['./ConData_', BandName, '.mat'], 'ConData', '-v7.3');
     end
-    % ---------------- Band-pass filter the data ------------------------------- %
-    ConData = BandPassFilter(ConData, Band, TimeRange, Fsamp);
-    % ConData = ClearTrials(ConData);
-    save(['./ConData_', BandName, '.mat'], 'ConData', '-v7.3');
-end
-% return;
+    % return;
 
-ConData = ComputeCrossSpectra(ConData);
-% for sc = 1:length(ConDataBand)
-%     fprintf('%d Computing cross-spectral matrix ....\n' , sc); 
-%     ConDataBand{sc}.CrossSpecTime = CrossSpectralTimeseries(ConDataBand{sc}.Trials); 
-%     ConDataBand{sc}.CrossSpecTimeInd = CrossSpectralTimeseries(ConDataBand{sc}.Trials,true);
-%     % compute their projected versions                                                      
-%     [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr] = ProjectAwayFromPowerFixedOr(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,350);
-%     ConDataBand{sc}.CrossSpecTimeIndP = ConDataBand{sc}.CrossSpecTimeInd - ...
-%                                         ConDataBand{sc}.Upwr * ConDataBand{sc}.Upwr' * ...
-%                                         ConDataBand{sc}.CrossSpecTimeInd;
-%     %UP
-%     if(bComputePLI)
-%         Trials = zeros(size(ConData{sc}.UP, 2), size(ConData{sc}.Trials, 2), size(ConData{sc}.Trials, 2));
-%         for tr = 1:size(ConData{sc}.Trials, 3)
-%             Trials(:,:,tr) = ConData{sc}.UP' * ConData{sc}.Trials(:,:,tr);
-%         end;
-%         ConDataBand{sc}.wPLI =  wPLIMatrix(Trials(:,1:256,:), Band, Fsamp, true);
+    ConData = ComputeCrossSpectra(ConData);
+    save(['./ConData_', BandName, '_CT.mat'], 'ConData', '-v7.3');
+end
+% ------------------ Thing-in-itself!!! ------------------------------------------------- %
+% Acc = zeros(1,351);
+% for s=1:10
+%     A2 = ConData{10+s}.CrossSpecTimeIndP;
+%     A1 = ConData{s}.CrossSpecTimeIndP;
+%     for t = 1:351
+%         N = size(ConData{10 + s}.UP,1);
+%         Ad21 = ConData{10 + s}.UP' * reshape(A2(:,t) - A1(t), N, N) * ConData{10 + s}.UP;
+%         Acc(t) = Acc(t) + sum(Ad21(:));
 %     end;
 % end;
-
-Acc = zeros(1,351);
-for s=1:10
-    A2 = ConDataBand{10+s}.CrossSpecTimeIndP;
-    A1 = ConDataBand{s}.CrossSpecTimeIndP;
-    for t = 1:351
-        N = size(ConData{10 + s}.UP,1);
-        Ad21 = ConData{10 + s}.UP' * reshape(A2(:,t) - A1(t), N, N) * ConData{10 + s}.UP;
-        Acc(t) = Acc(t) + sum(Ad21(:));
-    end;
-end;
-
+% -----------------------KEEP KANT AND CRITICIZE EVERYTHING------------------------------ %
 
 % load('c:\MyWriteups\iRAPMusicPaper\Simulations\MEGSensors.mat');
 load('/home/dmalt/ps/MEGSensors.mat');
 for i = 1:length(ChUsed)
     ChLoc(:,i) = MEGSensors.Channel(ChUsed(i)).Loc(:,1);
-end;
-
+end
 range = 75:150;
 figure
 pcntg = 2 * 1e-3;
 for s=1:10
-     C1 = ConDataBand{10 + s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
-     C2 = ConDataBand{20 + s}.CrossSpecTimeIndP(:,range)-ConDataBand{s}.CrossSpecTimeIndP(:,range);
+     C1 = ConData{10 + s}.CrossSpecTimeIndP(:,range)-ConData{s}.CrossSpecTimeIndP(:,range);
+     C2 = ConData{20 + s}.CrossSpecTimeIndP(:,range)-ConData{s}.CrossSpecTimeIndP(:,range);
      [u ss2 v] = svd([real(C2) imag(C2)]);
      C1but2 = C1-u(:,1:6) * u(:,1:6)' * C1;
      [u ss1 v] = svd([real(C1) imag(C1)]);
@@ -121,7 +106,7 @@ for s=1:10
     ind_max = key_srt(fix((1 - pcntg) * length(key_srt)):end);
     th = aux(fix((1 - pcntg) * length(key_srt)));
 
-    h = subplot(2, 5, s)
+    h = subplot(2, 5, s);
       plot3(ChLoc(1,:), ChLoc(2,:), ChLoc(3,:),'.');
 
       hold on
@@ -145,6 +130,11 @@ for s1 = 1:10
 end;
 
 return
+% ################################################################################################## %
+% ################################################################################################## %
+% ################################################################################################## %
+% ################################################################################################## %
+% ################################################################################################## %
 sc = 1;
 Trials1 = zeros(size(ConData{sc}.UP,2),size(ConData{sc}.Trials,2),size(ConData{sc}.Trials,2));
 for tr = 1:size(ConData{sc}.Trials,3)
