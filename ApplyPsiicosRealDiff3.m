@@ -1,6 +1,7 @@
 % --------------------------- Set parameters --------------------------------------------- %
 % ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
+MEG_sensors_file = '/home/dmalt/ps/MEGSensors.mat';
 bUseHR = false;
 bKeepLR = false;
 bClearHM = true;
@@ -8,18 +9,21 @@ ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
 Ncond = length(Conditions);
-Band = [15 30];
-BandName = 'beta';
+Band = [2 4];
+BandName = 'delta';
 %Band = [8 12];
 bLoadTrials = true;
 bComputePLI = false;
 Fsamp = 500;
 [b,a] = butter(5, Band / (Fsamp / 2));
+N_subjects = 10; % Need to write a function that will figure it out from the protocol
 % ---------------------------------------------------------------------------------------- %
 if exist(['./ConData_', BandName,'_CT.mat'], 'file')
+    fprintf(['Loading ./ConData', BandName, '_CT.mat; This might take a while ...\n']);
     load(['./ConData_', BandName,'_CT.mat']);
 else
     if exist(['./ConData_', BandName, '.mat'], 'file')
+        fprintf(['Loading ./ConData', BandName, '.mat; This might take a while ...\n']);
         load(['./ConData_', BandName, '.mat']);
     else
         if exist('./10SubjData.mat', 'file')
@@ -50,13 +54,12 @@ else
             % save('c:\mywriteups\irAPMusicPaper\10SubjData.mat', '-v7.3');
             save('./10SubjData.mat', 'ConData', '-v7.3');
         end
-        % ---------------- Band-pass filter the data ------------------------------- %
+        % ---------------- Band-pass filter and crop the data ------------------------ %
         ConData = BandPassFilter(ConData, Band, TimeRange, Fsamp);
         % ConData = ClearTrials(ConData);
         save(['./ConData_', BandName, '.mat'], 'ConData', '-v7.3');
     end
-    % return;
-
+    % ---------- Compute cross-spectra for data and save them in .mat file ------------- %
     ConData = ComputeCrossSpectra(ConData);
     save(['./ConData_', BandName, '_CT.mat'], 'ConData', '-v7.3');
 end
@@ -73,22 +76,20 @@ end
 % end;
 % -----------------------KEEP KANT AND CRITICIZE EVERYTHING------------------------------ %
 
-% load('c:\MyWriteups\iRAPMusicPaper\Simulations\MEGSensors.mat');
-load('/home/dmalt/ps/MEGSensors.mat');
-for i = 1:length(ChUsed)
-    ChLoc(:,i) = MEGSensors.Channel(ChUsed(i)).Loc(:,1);
-end
-range = 75:150;
+% -------- Load channel locations ------------------ %
+ChLoc = ReadChannelLocations(MEG_sensors_file, ChUsed);
+
+range = 1:351;
 figure
 pcntg = 2 * 1e-3;
-for s=1:10
-     C1 = ConData{10 + s}.CrossSpecTimeIndP(:,range)-ConData{s}.CrossSpecTimeIndP(:,range);
-     C2 = ConData{20 + s}.CrossSpecTimeIndP(:,range)-ConData{s}.CrossSpecTimeIndP(:,range);
+for s=1:N_subjects
+     C1 = ConData{N_subjects + s}.CrossSpecTimeIndP(:, range) - ConData{s}.CrossSpecTimeIndP(:, range);
+     C2 = ConData{2 * N_subjects + s}.CrossSpecTimeIndP(:, range) - ConData{s}.CrossSpecTimeIndP(:, range);
      [u ss2 v] = svd([real(C2) imag(C2)]);
-     C1but2 = C1-u(:,1:6) * u(:,1:6)' * C1;
+     C1but2 = C1 - u(:, 1:6) * u(:, 1:6)' * C1;
      [u ss1 v] = svd([real(C1) imag(C1)]);
-     C2but1 = C2-u(:,1:6) * u(:,1:6)' * C2;
-     C = sum(C1but2(:,1:50),2);
+     C2but1 = C2 - u(:, 1:6) * u(:, 1:6)' * C2;
+     C = sum(C1but2(:, 1:50), 2);
 
 %     C2 = ConDataBand{10+s}.CrossSpecTimeIndP(:,75:200);
 %     C1 = ConDataBand{s}.CrossSpecTimeIndP(:,75:200);
@@ -107,19 +108,20 @@ for s=1:10
     th = aux(fix((1 - pcntg) * length(key_srt)));
 
     h = subplot(2, 5, s);
-      plot3(ChLoc(1,:), ChLoc(2,:), ChLoc(3,:),'.');
+      plot3(ChLoc(1,:), ChLoc(2,:), ChLoc(3,:), '.');
 
       hold on
       Pairs{s} = [];
        for i=1:length(ind_max)
-          [ii jj]  = ind2sub(size(D21{s}),ind_max(i));
-          Pairs{s} = [Pairs{s};[ii jj]];
-          plot3([ChLoc(1, ii) ChLoc(1, jj)],[ChLoc(2, ii) ChLoc(2, jj)],[ChLoc(3, ii) ChLoc(3, jj)], 'Color', 'r');
+          [ii jj]  = ind2sub(size(D21{s}), ind_max(i));
+          Pairs{s} = [Pairs{s}; [ii jj]];
+          plot3([ChLoc(1, ii) ChLoc(1, jj)], [ChLoc(2, ii) ChLoc(2, jj)], [ChLoc(3, ii) ChLoc(3, jj)], 'Color', 'r');
         end;
-        set(h,'View',[0 90])
+        set(h, 'View', [0 90])
         axis tight
         axis off
 end
+
 CSa = zeros(10,10);
 for s1 = 1:10
     for s2 = 1:10
