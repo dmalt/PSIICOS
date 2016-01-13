@@ -3,3 +3,6 @@ psiicos.sublime-workspace
 10SubjData.mat
 ConDataBand.mat
 *.mat
+
+*~
+*.zip
