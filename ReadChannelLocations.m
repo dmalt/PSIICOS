@@ -18,7 +18,7 @@ function ChLoc = ReadChannelLocations(MEG_sensors_file, ChUsed)
 % ________________________________________________________________________
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
-	load('/home/dmalt/ps/MEGSensors.mat');
+	load(MEG_sensors_file);
 	for i = 1:length(ChUsed)
 	    ChLoc(:,i) = MEGSensors.Channel(ChUsed(i)).Loc(:,1);
 	end

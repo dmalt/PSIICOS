@@ -1,7 +1,8 @@
 % --------------------------- Set parameters --------------------------------------------- %
 % ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
-MEG_sensors_file = '/home/dmalt/ps/MEGSensors.mat';
+% MEG_sensors_file = '/home/dmalt/ps/MEGSensors.mat';
+MEG_sensors_file = '/home/meg/osad/psiicos/MEGSensors.mat';
 bUseHR = false;
 bKeepLR = false;
 bClearHM = true;
@@ -9,21 +10,21 @@ ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
 Ncond = length(Conditions);
-Band = [2 4];
-BandName = 'delta';
+Band = [4 8];
+BandName = 'theta';
 %Band = [8 12];
 bLoadTrials = true;
 bComputePLI = false;
 Fsamp = 500;
-[b,a] = butter(5, Band / (Fsamp / 2));
+% [b,a] = butter(5, Band / (Fsamp / 2));
 N_subjects = 10; % Need to write a function that will figure it out from the protocol
 % ---------------------------------------------------------------------------------------- %
 if exist(['./ConData_', BandName,'_CT.mat'], 'file')
-    fprintf(['Loading ./ConData', BandName, '_CT.mat; This might take a while ...\n']);
+    fprintf(['Loading ./ConData_', BandName, '_CT.mat; this might take a while ...\n']);
     load(['./ConData_', BandName,'_CT.mat']);
 else
     if exist(['./ConData_', BandName, '.mat'], 'file')
-        fprintf(['Loading ./ConData', BandName, '.mat; This might take a while ...\n']);
+        fprintf(['Loading ./ConData_', BandName, '.mat; this might take a while ...\n']);
         load(['./ConData_', BandName, '.mat']);
     else
         if exist('./10SubjData.mat', 'file')
@@ -63,69 +64,50 @@ else
     ConData = ComputeCrossSpectra(ConData);
     save(['./ConData_', BandName, '_CT.mat'], 'ConData', '-v7.3');
 end
-% ------------------ Thing-in-itself!!! ------------------------------------------------- %
-% Acc = zeros(1,351);
-% for s=1:10
-%     A2 = ConData{10+s}.CrossSpecTimeIndP;
-%     A1 = ConData{s}.CrossSpecTimeIndP;
-%     for t = 1:351
-%         N = size(ConData{10 + s}.UP,1);
-%         Ad21 = ConData{10 + s}.UP' * reshape(A2(:,t) - A1(t), N, N) * ConData{10 + s}.UP;
-%         Acc(t) = Acc(t) + sum(Ad21(:));
-%     end;
-% end;
-% -----------------------KEEP KANT AND CRITICIZE EVERYTHING------------------------------ %
 
 % -------- Load channel locations ------------------ %
 ChLoc = ReadChannelLocations(MEG_sensors_file, ChUsed);
 
-range = 1:351;
-figure
-pcntg = 2 * 1e-3;
+
+
 for s=1:N_subjects
-     C1 = ConData{N_subjects + s}.CrossSpecTimeIndP(:, range) - ConData{s}.CrossSpecTimeIndP(:, range);
-     C2 = ConData{2 * N_subjects + s}.CrossSpecTimeIndP(:, range) - ConData{s}.CrossSpecTimeIndP(:, range);
-     [u ss2 v] = svd([real(C2) imag(C2)]);
-     C1but2 = C1 - u(:, 1:6) * u(:, 1:6)' * C1;
-     [u ss1 v] = svd([real(C1) imag(C1)]);
-     C2but1 = C2 - u(:, 1:6) * u(:, 1:6)' * C2;
-     C = sum(C1but2(:, 1:50), 2);
+    C1{s}.CT = ConData{s}.CrossSpecTime;
+    C1{s}.CTP = ConData{s}.CrossSpecTimeP;
+    C1{s}.CT_Ind = ConData{s}.CrossSpecTimeInd;
+    C1{s}.CT_IndP = ConData{s}.CrossSpecTimeIndP;
+    C1{s}.UP = ConData{s}.UP;
 
-%     C2 = ConDataBand{10+s}.CrossSpecTimeIndP(:,75:200);
-%     C1 = ConDataBand{s}.CrossSpecTimeIndP(:,75:200);
-%     
-%     [u ss v] = svd([real(C1) imag(C1)]);
-%     C2but1 = C2-u(:,1:15)*u(:,1:15)'*C2;
-%     C = sum(C2but1(:,1:50),2);
-%    
-    Csq = reshape(C,size(ConData{10 + s}.UP, 1),size(ConData{10 + s}.UP, 1));
-    
-    D21{s} = ConData{10 + s}.UP' * Csq * ConData{10 + s}.UP;
-    M = abs(real(D21{s}));
-    %M = (ConDataBand{20+s}.wPLI-ConDataBand{s}.wPLI)-(ConDataBand{10+s}.wPLI-ConDataBand{s}.wPLI);
-    [aux, key_srt] = sort(M(:));
-    ind_max = key_srt(fix((1 - pcntg) * length(key_srt)):end);
-    th = aux(fix((1 - pcntg) * length(key_srt)));
+    C2{s}.CT = ConData{N_subjects + s}.CrossSpecTime;
+    C2{s}.CTP = ConData{N_subjects + s}.CrossSpecTimeP;
+    C2{s}.CT_Ind = ConData{N_subjects + s}.CrossSpecTimeInd;
+    C2{s}.CT_IndP = ConData{N_subjects + s}.CrossSpecTimeIndP;
+    C2{s}.UP = ConData{s}.UP;
 
-    h = subplot(2, 5, s);
-      plot3(ChLoc(1,:), ChLoc(2,:), ChLoc(3,:), '.');
+    C4{s}.CT = ConData{N_subjects * 2 + s}.CrossSpecTime;
+    C4{s}.CTP = ConData{N_subjects * 2 + s}.CrossSpecTimeP;
+    C4{s}.CT_Ind = ConData{N_subjects * 2 + s}.CrossSpecTimeInd;
+    C4{s}.CT_IndP = ConData{N_subjects * 2 + s}.CrossSpecTimeIndP;
+    C4{s}.UP = ConData{s}.UP;
 
-      hold on
-      Pairs{s} = [];
-       for i=1:length(ind_max)
-          [ii jj]  = ind2sub(size(D21{s}), ind_max(i));
-          Pairs{s} = [Pairs{s}; [ii jj]];
-          plot3([ChLoc(1, ii) ChLoc(1, jj)], [ChLoc(2, ii) ChLoc(2, jj)], [ChLoc(3, ii) ChLoc(3, jj)], 'Color', 'r');
-        end;
-        set(h, 'View', [0 90])
-        axis tight
-        axis off
+    C1{s}.CTfrom2 = ProjAwayFromCond(C1{s}.CT_IndP, C2{s}.CT_IndP);
+    C1{s}.CTfrom4 = ProjAwayFromCond(C1{s}.CT_IndP, C4{s}.CT_IndP);
+
+    C2{s}.CTfrom1 = ProjAwayFromCond(C2{s}.CT_IndP, C1{s}.CT_IndP);
+    C2{s}.CTfrom4 = ProjAwayFromCond(C2{s}.CT_IndP, C4{s}.CT_IndP);
+
+    C4{s}.CTfrom1 = ProjAwayFromCond(C4{s}.CT_IndP, C1{s}.CT_IndP);
+    C4{s}.CTfrom2 = ProjAwayFromCond(C4{s}.CT_IndP, C2{s}.CT_IndP);
+
+    C{s}.CT = sum(C2{s}.CTfrom1, 2);
+    C{s}.UP = C2{s}.UP;
 end
+
+Pairs = PlotConnections(C, ChLoc, 'real');
 
 CSa = zeros(10,10);
 for s1 = 1:10
     for s2 = 1:10
-        if(s1~=s2)
+        if(s1 ~= s2)
             CSa(s1,s2) = ConnectivitySimilarity(Pairs{s1},Pairs{s2},ChLoc);
         end
     end;
