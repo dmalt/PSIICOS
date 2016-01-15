@@ -38,6 +38,8 @@ function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
     cs2_12_21 = zeros(1, Nsrc);
     Cs0 =  zeros(1, Nsrc * (Nsrc - 1) / 2);
     %below is the optimized implementation of this:
+    % Look at each pair and estimate subspace correlation
+    % between cross-spectrum and topography of this pair
     % tic
     % p = 1;
     % for i=1:Nsrc
