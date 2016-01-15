@@ -10,8 +10,8 @@ ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
 Ncond = length(Conditions);
-Band = [4 8];
-BandName = 'theta';
+Band = [15 30];
+BandName = 'beta';
 %Band = [8 12];
 bLoadTrials = true;
 bComputePLI = false;
@@ -68,47 +68,15 @@ end
 % -------- Load channel locations ------------------ %
 ChLoc = ReadChannelLocations(MEG_sensors_file, ChUsed);
 
-
-
-for s=1:N_subjects
-    C1{s}.CT = ConData{s}.CrossSpecTime;
-    C1{s}.CTP = ConData{s}.CrossSpecTimeP;
-    C1{s}.CT_Ind = ConData{s}.CrossSpecTimeInd;
-    C1{s}.CT_IndP = ConData{s}.CrossSpecTimeIndP;
-    C1{s}.UP = ConData{s}.UP;
-
-    C2{s}.CT = ConData{N_subjects + s}.CrossSpecTime;
-    C2{s}.CTP = ConData{N_subjects + s}.CrossSpecTimeP;
-    C2{s}.CT_Ind = ConData{N_subjects + s}.CrossSpecTimeInd;
-    C2{s}.CT_IndP = ConData{N_subjects + s}.CrossSpecTimeIndP;
-    C2{s}.UP = ConData{s}.UP;
-
-    C4{s}.CT = ConData{N_subjects * 2 + s}.CrossSpecTime;
-    C4{s}.CTP = ConData{N_subjects * 2 + s}.CrossSpecTimeP;
-    C4{s}.CT_Ind = ConData{N_subjects * 2 + s}.CrossSpecTimeInd;
-    C4{s}.CT_IndP = ConData{N_subjects * 2 + s}.CrossSpecTimeIndP;
-    C4{s}.UP = ConData{s}.UP;
-
-    C1{s}.CTfrom2 = ProjAwayFromCond(C1{s}.CT_IndP, C2{s}.CT_IndP);
-    C1{s}.CTfrom4 = ProjAwayFromCond(C1{s}.CT_IndP, C4{s}.CT_IndP);
-
-    C2{s}.CTfrom1 = ProjAwayFromCond(C2{s}.CT_IndP, C1{s}.CT_IndP);
-    C2{s}.CTfrom4 = ProjAwayFromCond(C2{s}.CT_IndP, C4{s}.CT_IndP);
-
-    C4{s}.CTfrom1 = ProjAwayFromCond(C4{s}.CT_IndP, C1{s}.CT_IndP);
-    C4{s}.CTfrom2 = ProjAwayFromCond(C4{s}.CT_IndP, C2{s}.CT_IndP);
-
-    C{s}.CT = sum(C2{s}.CTfrom1, 2);
-    C{s}.UP = C2{s}.UP;
-end
-
+[C1, C2, C4, C] = PrepCondCT(ConData, N_subjects);
+[indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr);
 Pairs = PlotConnections(C, ChLoc, 'real');
 
-CSa = zeros(10,10);
+CSa = zeros(10, 10);
 for s1 = 1:10
     for s2 = 1:10
         if(s1 ~= s2)
-            CSa(s1,s2) = ConnectivitySimilarity(Pairs{s1},Pairs{s2},ChLoc);
+            CSa(s1, s2) = ConnectivitySimilarity(Pairs{s1}, Pairs{s2}, ChLoc);
         end
     end;
 end;
@@ -137,10 +105,11 @@ end;
 
 
 CT3  = ProjectAwayFromPower(ConData{3}.CrossSpecTime,G2dLRU);
-[u2 s2 v2 ] = svd(CT2,'econ');
-CT3no2 = CT3-u2(:,1:20)*(u2(:,1:20)'*CT3);
+[u2 s2 v2 ] = svd(CT2, 'econ');
+CT3no2 = CT3 - u2(:,1:20) * (u2(:, 1:20)' * CT3);
 
-[ Cs, CT, IND, Upwr] = RAPPSIICOSTime2Cond(ConData{3}.CrossSpecTime, ConData{2}.CrossSpecTime,CT2,20,G2dLRU ,1,350, 5);
+[ Cs, CT, IND, Upwr] = RAPPSIICOSTime2Cond(ConData{3}.CrossSpecTime, ...
+                 ConData{2}.CrossSpecTime, CT2, 20, G2dLRU ,1, 350, 5);
 
 
 
@@ -156,7 +125,7 @@ CT3no2 = CT3-u2(:,1:20)*(u2(:,1:20)'*CT3);
 %[Q2, IND, CpProjs2, Upwr ] = PSIICOS(ConData{2}.CrossSpec, G2dLRU);
 return
 
-[Q3vs1T, IND, CpProjs3vs1, Upwr ] = RAPPSIICOSTime(ConData{3}.CrossSpecTime-ConData{1}.CrossSpecTime, G2dLRU,4);
+[Q3vs1T, IND, CpProjs3vs1, Upwr] = RAPPSIICOSTime(ConData{3}.CrossSpecTime - ConData{1}.CrossSpecTime, G2dLRU,4);
 %[Cs3, Ps, INDdics] = iDICS(ConData{3}.CrossSpec, G2dLRU);
 %[Cs1, Ps, INDdics] = iDICS(ConData{1}.CrossSpec, G2dLRU);
 
