@@ -3,9 +3,12 @@
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
 % MEG_sensors_file = '/home/dmalt/ps/MEGSensors.mat';
 MEG_sensors_file = '/home/meg/osad/psiicos/MEGSensors.mat';
+%  These flags are considered only when we load data from BST Protocol  %
+%  and don't work if we load data from .mat file %
 bUseHR = false;
-bKeepLR = false;
+bKeepLR = true;
 bClearHM = true;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ChUsed = 1:306; ChUsed(3:3:end) = [];
 TimeRange = [0, 0.700];
 Conditions = {'1','2','4'}; % '2','4'};
