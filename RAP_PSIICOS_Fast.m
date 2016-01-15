@@ -13,18 +13,17 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 %   Rnk      - limits the dimension of Volume Conduction subspace
 %   Upwr     - VC subspace basis matrix. Columns of Upwr span the VC subspace
 % OUTPUTS:
-%   indep_topo
-%   c_ss_hat
-%   PVU
-%   SubC
-%   INDrap
-%   Cp       - projected away from the VC subspace sensor space cross-soectral
-%              matrix
-%   Upwr     - VC subspace basis matrix. Columns of Upwr span the VC subspace
+%   indep_topo -
+%   c_ss_hat   -
+%   PVU        - 
+%   SubC       -
+%   INDrap     - {RAPIts x 2} matrix; each row contains indices of two connected 
+%                sites found by the algorithm
+%   Cp         - projected away from the VC subspace sensor space cross-soectral
+%                matrix
+%   Upwr       - VC subspace basis matrix. Columns of Upwr span the VC subspace
 % ________________________________________________________________________
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
-
-
 
     %% Preparatory steps
     if(nargin < 4)
@@ -78,11 +77,14 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
     indep_topo = zeros(prod(size(Cprap)), RAPIts * 2);
     c_ss_hat = zeros(1, RAPIts * 2);
     for rap = 1:RAPIts
+        % Look at the topography of a pair that is
+        % most correlated with the cross-spectrum
         [Cs(rap,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cprap);
         [val_max ind_max] = max(Cs(rap,:));
         pair_max = IND(ind_max,:);
         i = IND(ind_max, 1); 
         j = IND(ind_max, 2); 
+
         range_i = i * 2 - 1 : i * 2;
         range_j = j * 2 - 1 : j * 2;
         ai = G2dU(:, i * 2 - 1 : i * 2);
@@ -95,8 +97,8 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         % the real orientations
         csr = real(cs);
         csi = imag(cs);
-        [uL sL vL] = svd([ csr csi]);
-        [uR sR vR] = svd([ csr;csi]);
+        [uL sL vL] = svd([csr csi]);
+        [uR sR vR] = svd([csr;csi]);
         ai_or = ai * uL(:,1);
         aj_or = aj * vR(:,1);
         % not that norm(ai_or'*Cprap*aj_or) = s(1,1)= s_max and therefore the
@@ -105,15 +107,17 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         qji = aj_or * ai_or';
         qijp = qij(:) - Upwr * (Upwr' * qij(:));
         qjip = qji(:) - Upwr * (Upwr' * qji(:));
-        qp = [qijp,qjip];
+        qp = [qijp, qjip];
         c_ss_hat(1, range2) = (pinv(qp) * Cprap(:))';
-        SubC(rap) = subcorr(Cprap(:),qp);
+        SubC(rap) = subcorr(Cprap(:), qp);
+        % Project the cross-spectrum away from the most 
+        % correlated source
         Cprap_vec = Cprap(:) - qp * (pinv(qp) * Cprap(:));
         Cprap = reshape(Cprap_vec, size(Cprap));
         indep_topo(:,range2) = qp;
         PVU(rap) = norm(Cp(:) - indep_topo * c_ss_hat') / norm(Cp(:));
-        INDrap(rap,1) = i; 
-        INDrap(rap,2) = j; 
+        INDrap(rap, 1) = i; 
+        INDrap(rap, 2) = j; 
         range2 = range2 + 2;
       end
 
