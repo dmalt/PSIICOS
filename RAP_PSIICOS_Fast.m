@@ -3,20 +3,22 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 % Power and Shift Independent Imaging of Coherent Sources (PSIICOS) in MEG data
 % --------------------------------------------------------------------------------------------------
 % FORMAT:
-%   [indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr) 
+%   [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr) 
 % INPUTS:
 %   C        - a sensor space cross-spectral matrix
 %   G2dU     - forward model matrix such that each source is served by two
 %              columns of this matrix corresponding to the topographies of dipoles in
 %              the tangential plane
-%   RAPIts
+%   RAPIts   - 
 %   Rnk      - limits the dimension of Volume Conduction subspace
 %   Upwr     - VC subspace basis matrix. Columns of Upwr span the VC subspace
 % OUTPUTS:
-%   indep_topo -
-%   c_ss_hat   -
-%   PVU        - 
-%   SubC       -
+%   indep_topo - {N_sources ^ 2 x 2 * RAPIts} matrix of topographies of connected
+%                pairs recovered by the algorithm
+%   c_ss_hat   - {rap x 2} 
+%   PVU        - {1 x RAPIts}; array of percentages of variance unexplained for each
+%                algorithm iteration
+%   SubC       - 
 %   INDrap     - {RAPIts x 2} matrix; each row contains indices of two connected 
 %                sites found by the algorithm
 %   Cp         - projected away from the VC subspace sensor space cross-soectral
@@ -95,29 +97,36 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         % therefore can not be defined over the field of complex numbers. 
         % Do this trick to force SVD to real 2x1 vectors(first left, ten right) to find 
         % the real orientations
+
+        % --- Do we realy need this???? --- %
         csr = real(cs);
         csi = imag(cs);
         [uL sL vL] = svd([csr csi]);
-        [uR sR vR] = svd([csr;csi]);
+        [uR sR vR] = svd([csr; csi]);
         ai_or = ai * uL(:,1);
         aj_or = aj * vR(:,1);
-        % not that norm(ai_or'*Cprap*aj_or) = s(1,1)= s_max and therefore the
+        % -------------------------------- %
+        % not that norm(ai_or '* Cprap * aj_or) = s(1,1)= s_max and therefore the
         % fast scan implemented is valid
         qij = ai_or * aj_or';
         qji = aj_or * ai_or';
         qijp = qij(:) - Upwr * (Upwr' * qij(:));
         qjip = qji(:) - Upwr * (Upwr' * qji(:));
         qp = [qijp, qjip];
-        c_ss_hat(1, range2) = (pinv(qp) * Cprap(:))';
+        c_ss_hat(rap, range2) = (pinv(qp) * Cprap(:))';
         SubC(rap) = subcorr(Cprap(:), qp);
         % Project the cross-spectrum away from the most 
         % correlated source
         Cprap_vec = Cprap(:) - qp * (pinv(qp) * Cprap(:));
         Cprap = reshape(Cprap_vec, size(Cprap));
+        % Recovered independent topographies:
         indep_topo(:,range2) = qp;
+        %%%%%%%%%%%%%%%%%%%%%%%%%
         PVU(rap) = norm(Cp(:) - indep_topo * c_ss_hat') / norm(Cp(:));
+        % Indices of connected sited on a source level:
         INDrap(rap, 1) = i; 
         INDrap(rap, 2) = j; 
+        %%%%%%%%%%%%%%%%%%%
         range2 = range2 + 2;
       end
 
