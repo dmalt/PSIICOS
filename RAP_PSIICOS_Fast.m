@@ -5,23 +5,26 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 % FORMAT:
 %   [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr) 
 % INPUTS:
-%   C        - a sensor space cross-spectral matrix
-%   G2dU     - forward model matrix such that each source is served by two
-%              columns of this matrix corresponding to the topographies of dipoles in
-%              the tangential plane
-%   RAPIts   - 
-%   Rnk      - limits the dimension of Volume Conduction subspace
-%   Upwr     - VC subspace basis matrix. Columns of Upwr span the VC subspace
+%   C        - {N_sensors_reduced x N_sensors_reduced} a sensor space cross-spectral matrix
+%   G2dU     - {N_sensors_reduced x N_sources} forward model matrix such that each source 
+%              is served by two columns of this matrix corresponding to the \
+%              topographies of dipoles in the tangential plane
+%   RAPIts   - scalar; number of iterations for the algorithm to perform
+%   Rnk      - scalar; rank of Volume Conduction subspace. The bigger this value
+%              is the more data will be removed by the projection from VC. On the
+%              contrary, the smaller it is the more VC-related activity will remain in the data.
+%   Upwr     - {N_sensors_reduced ^ 2 x Rnk} VC subspace basis matrix. 
+%              Columns of Upwr span the VC subspace
 % OUTPUTS:
 %   indep_topo - {N_sources ^ 2 x 2 * RAPIts} matrix of topographies of connected
 %                pairs recovered by the algorithm
 %   c_ss_hat   - {rap x 2} 
 %   PVU        - {1 x RAPIts}; array of percentages of variance unexplained for each
-%                algorithm iteration
+%                algorithm iteration.
 %   SubC       - 
 %   INDrap     - {RAPIts x 2} matrix; each row contains indices of two connected 
 %                sites found by the algorithm
-%   Cp         - projected away from the VC subspace sensor space cross-soectral
+%   Cp         - projected away from the VC subspace sensor space cross-spectral
 %                matrix
 %   Upwr       - VC subspace basis matrix. Columns of Upwr span the VC subspace
 % ________________________________________________________________________
