@@ -23,14 +23,14 @@ function ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM)
 %   ConData            - {1 x N_conditions_total} the same cell array as in 
 %                        input but some fields are added:
 %
-%   ConData{c}.G2dLR   - {Nchannels x 2 * NsensorsLR} for low res gain matrices
+%   ConData{c}.G2dLR   - {Nchannels x 2 * NsourcesLR} for low res gain matrices
 %                        without dimensionality reduction
-%   ConData{c}.G2dHR   - {Nchannels x 2 * NsensorsLR}
+%   ConData{c}.G2dHR   - {Nchannels x 2 * NsourcesLR}
 %                        the same as above for high res gain matrix
 %                        (computed only if bUseHR is set to True)
 %   ConData{c}.UP      - {N_sensors_reduced x Nsensors} matrix of left 
 %                        singular vectors for G2dLR
-%   ConData{c}.G2dLRU  - {Nchannels x N_sensors_reduced} gain matrix 
+%   ConData{c}.G2dLRU  - {N_sensors_reduced x N_sources} gain matrix 
 %                        with reduced number of sensors
 % __________________________________________________________________________
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
