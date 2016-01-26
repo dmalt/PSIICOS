@@ -1,6 +1,7 @@
 function ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed)
 % ---------------------------------------------------------------------------------------
-% LoadTrials: load trials data from brainstorm database into ConData cell array
+% LoadTrials: load trials data from brainstorm database into ConData cell array and
+% reduce sensor space via PCA.
 % ---------------------------------------------------------------------------------------
 % FORMAT:
 %   ConData = LoadTrials(ConData, Protocol, Conditions, bLoadTrials, ProtocolDir, ChUsed)
