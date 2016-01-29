@@ -1,4 +1,4 @@
-function DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort)
+function CT_restored = DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort)
 % ------------------------------------------------------------
 % DrawCrossSpectrum: get cross-spectrum timeseries on
 % reduced sensors, restore it back to real sensors,
@@ -8,7 +8,7 @@ function DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort)
 % the resulting matrix
 % -------------------------------------------------------------
 % FORMAT:
-%   DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort) 
+%   CT_restored = DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort) 
 % INPUTS:
 %   CTimeseries     - {N_sensors_reduced ^ 2 x Ntimes} 
 %                     cross-spectrum matrix on reduced
@@ -24,6 +24,8 @@ function DrawCrossSpectrum(CTimeseries, UP, ChLoc, ifSort)
 %                     interacting locations corresponding 
 %                     to a row.
 % OUTPUTS:
+%   CT_restored     - {N_sensors ^ 2 Ntimes} cross-spectrum 
+%                     matrix on real sensors
 % _____________________________________________________________
 % Dmitrii Altukhov, dm.altukhov@ya.ru
 
