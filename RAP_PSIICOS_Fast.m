@@ -1,11 +1,11 @@
-function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr)
+function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Power and Shift Independent Imaging of Coherent Sources (PSIICOS) in MEG data
 % --------------------------------------------------------------------------------------------------
 % FORMAT:
 %   [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr) 
 % INPUTS:
-%   C        - {N_sensors_reduced x N_sensors_reduced} a sensor space cross-spectral matrix
+%   C        - {N_sensors_reduced x N_sensors_reduced} sensor-space cross-spectral matrix
 %   G2dU     - {N_sensors_reduced x N_sources} forward model matrix such that each source 
 %              is served by two columns of this matrix corresponding to the \
 %              topographies of dipoles in the tangential plane
@@ -16,7 +16,7 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 %   Upwr     - {N_sensors_reduced ^ 2 x Rnk} VC subspace basis matrix. 
 %              Columns of Upwr span the VC subspace
 % OUTPUTS:
-%   indep_topo - {N_sources ^ 2 x 2 * RAPIts} matrix of topographies of connected
+%   indep_topo - {N_sources ^ 2 x 2 * RAPIts} matrix of oriented topographies of connected
 %                pairs recovered by the algorithm
 %   c_ss_hat   - {rap x 2} 
 %   PVU        - {1 x RAPIts}; array of percentages of variance unexplained for each
@@ -52,7 +52,8 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 
     %% perform projection of the coherence matrix away from the power only
     if(isempty(Upwr))
-        [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
+        % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
+        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C(:), G2dU, Rnk);
     else % use the existing matrix if profided
         c = Upwr' * C(:);
         Cpvec  = C(:) - Upwr * c;
@@ -88,18 +89,17 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         [val_max ind_max] = max(Cs(rap,:));
         pair_max = IND(ind_max,:);
         i = IND(ind_max, 1); 
-        j = IND(ind_max, 2); 
-
+        j = IND(ind_max, 2);
         range_i = i * 2 - 1 : i * 2;
         range_j = j * 2 - 1 : j * 2;
         ai = G2dU(:, i * 2 - 1 : i * 2);
         aj = G2dU(:, j * 2 - 1 : j * 2);
-        cs = ai' * Cprap * aj;
-        [u s v] = svd(cs);
-        % u and v are complex but the orientation vectors of dipoles are physical and
-        % therefore can not be defined over the field of complex numbers. 
-        % Do this trick to force SVD to real 2x1 vectors(first left, ten right) to find 
-        % the real orientations
+        % cs = ai' * Cprap * aj;
+        % [u s v] = svd(cs);
+        % % u and v are complex but the orientation vectors of dipoles are physical and
+        % % therefore can not be defined over the field of complex numbers. 
+        % % Do this trick to force SVD to real 2x1 vectors(first left, ten right) to find 
+        % % the real orientations
 
         % --- Do we realy need this???? --- %
         csr = real(cs);
@@ -108,15 +108,21 @@ function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         [uR sR vR] = svd([csr; csi]);
         ai_or = ai * uL(:,1);
         aj_or = aj * vR(:,1);
+        % --- This is correct but very slow ------ %
+        % [uL, vR, f] = FindOr(Cprap, ai, aj);
+        % ai_or = ai * uL(:,1);
+        % aj_or = aj * vR(:,1);
+        % ---------------------------------------- %
+        
         % -------------------------------- %
-        % not that norm(ai_or '* Cprap * aj_or) = s(1,1)= s_max and therefore the
+        % note that norm(ai_or '* Cprap * aj_or) = s(1,1)= s_max and therefore the
         % fast scan implemented is valid
         qij = ai_or * aj_or';
         qji = aj_or * ai_or';
         qijp = qij(:) - Upwr * (Upwr' * qij(:));
         qjip = qji(:) - Upwr * (Upwr' * qji(:));
         qp = [qijp, qjip];
-        c_ss_hat(rap, range2) = (pinv(qp) * Cprap(:))';
+        c_ss_hat(1, range2) = (pinv(qp) * Cprap(:))';
         SubC(rap) = subcorr(Cprap(:), qp);
         % Project the cross-spectrum away from the most 
         % correlated source
