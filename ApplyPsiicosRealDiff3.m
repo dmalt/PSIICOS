@@ -2,7 +2,8 @@
 % ProtocolDir = 'C:/brainstorm_db/PSIICOS/data/';
 ProtocolDir = '/home/dmalt/PSIICOS_osadtchii/data/';
 % MEG_sensors_file = '/home/dmalt/ps/MEGSensors.mat';
-MEG_sensors_file = '/home/meg/osad/psiicos/MEGSensors.mat';
+MEG_sensors_file = './MEGSensors.mat';
+% MEG_sensors_file = '/home/meg/osad/psiicos/MEGSensors.mat';
 %  These flags are considered only when we load data from BST Protocol  %
 %  and don't work if we load data from .mat file %
 bUseHR = false;
@@ -70,9 +71,50 @@ end
 
 % -------- Load channel locations ------------------ %
 ChLoc = ReadChannelLocations(MEG_sensors_file, ChUsed);
+% ---- Split all cross-spectra by conditions ------- %
+% In C we store cross-spectra we actually're going to
+% use. C is a cell array of structures; for each 
+% subject it stores cross-spectrum projected from volume
+% conduction and from first condition, and matrix for
+% going back to real sensors. 
+[C1, C2, C4] = PrepCondCT(ConData, N_subjects);
 
-[C1, C2, C4, C] = PrepCondCT(ConData, N_subjects);
-[indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr);
+TimeStep = (TimeRange(2) - TimeRange(1)) / (size(ConData{1}.CrossSpecTime, 2) - 1);
+dtimes = TimeRange(1):TimeStep:TimeRange(2);
+ind90 = TimeAsIndex(dtimes, 0.08);
+ind110 = TimeAsIndex(dtimes, 0.14);
+for s = 1:N_subjects
+    % C{s}.CT = sum(C2{s}.CTfrom1, 2);
+    % CT = sum(C2{s}.CT_Ind, 2);
+    CT = sum(C1{s}.CT_Ind(:, 90:110),2);
+    C{s}.CT = reshape(CT, sqrt(length(CT)), sqrt(length(CT)));
+    C{s}.UP = C1{s}.UP;
+    C{s}.G = C1{s}.G;
+    C{s}.Upwr = C1{s}.Upwr;
+end
+
+RAPIts = 120;
+Rnk = 350;
+iSubj = 1;
+[indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C{iSubj}.CT, C{iSubj}.G, RAPIts, Rnk, C{iSubj}.Upwr);
+
+CT = C1{iSubj}.CT_IndP;
+[u s v] = svd(indep_topo, 0);
+CT_res = CT - u * u' * CT;
+CT = RestoreSensorDimension(CT, C{iSubj}.UP);
+CT_res = RestoreSensorDimension(CT_res, C{iSubj}.UP);
+drCT = abs(CT(:,:));
+drCT_res = abs(CT_res(:,:));
+bottom = min(min(drCT(:)), min(drCT_res(:) ));
+top = max(max(drCT(:) ), max(drCT_res(:) ));
+subplot(1,2,1);
+imagesc(drCT,[bottom top]);
+colorbar;
+subplot(1,2,2);
+imagesc(drCT_res, [bottom top])
+colorbar;
+
+
 Pairs = PlotConnections(C, ChLoc, 'real');
 
 CSa = zeros(10, 10);
