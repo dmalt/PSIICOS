@@ -22,8 +22,8 @@ function [u,v,f] = FindOr(C, g1, g2)
 % ________________________________________
 % Dmitrii Altukhov, dm.altukhov@ya.ru
 	A = g1' * C * g2;
-	OPTIONS.TolX = 1e-7;
-	OPTIONS.TolFun = 1e-7;
-	[phi_max,f] = fminsearch(@(phi) OrientFunctional(phi, A), [0,0], OPTIONS);
+	OPTIONS.TolX = 1e-4;
+	OPTIONS.TolFun = 1e-4;
+	[phi_max,f] = fminsearch(@(phi) OrientFunctional(phi, A), [0,0]); %, OPTIONS);
 	u = [cos(phi_max(1)); sin(phi_max(1))];
 	v = [cos(phi_max(2)); sin(phi_max(2))];
