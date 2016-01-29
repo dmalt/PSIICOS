@@ -83,6 +83,7 @@ TimeStep = (TimeRange(2) - TimeRange(1)) / (size(ConData{1}.CrossSpecTime, 2) - 
 dtimes = TimeRange(1):TimeStep:TimeRange(2);
 ind90 = TimeAsIndex(dtimes, 0.08);
 ind110 = TimeAsIndex(dtimes, 0.14);
+
 for s = 1:N_subjects
     % C{s}.CT = sum(C2{s}.CTfrom1, 2);
     % CT = sum(C2{s}.CT_Ind, 2);
@@ -98,6 +99,8 @@ Rnk = 350;
 iSubj = 1;
 [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C{iSubj}.CT, C{iSubj}.G, RAPIts, Rnk, C{iSubj}.Upwr);
 
+% Plot original cross-spectrum and residual after RAP_PSIICOS 
+% side by side in similar colormap
 CT = C1{iSubj}.CT_IndP;
 [u s v] = svd(indep_topo, 0);
 CT_res = CT - u * u' * CT;
@@ -113,7 +116,7 @@ colorbar;
 subplot(1,2,2);
 imagesc(drCT_res, [bottom top])
 colorbar;
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Pairs = PlotConnections(C, ChLoc, 'real');
 
