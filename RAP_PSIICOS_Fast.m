@@ -1,4 +1,4 @@
-function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr] = RAP_PSIICOS_Fast( C, G2dU,RAPIts, Rnk, Upwr)
+function [ indep_topo, c_ss_hat, PVU, SubC,INDrap, Cp, Upwr,Auxp] = RAP_PSIICOS_Fast( C, G2dU,RAPIts, Rnk, Upwr, Aux,Aux2)
 %Input:
 % Power and Shift Independent Imaging of Coherent Sources (PSIICOS)
 % in MEG data 
@@ -42,21 +42,22 @@ else % use the existing matrix if profided
     Cpvec  = C(:)-Upwr*c;
 end;
 
-% k =1;
-% for rnk = 1:10:size(Upwr,2)
-%     Cimp  = imag(C(:))-Upwr(:,1:rnk)*(Upwr(:,1:rnk)'*imag(C(:)));
-%     nrmim(k) = norm(Cimp(:))/norm(imag(C(:)));
-%     k = k+1;
-% end;
+ k =1;
+ for rnk = 1:10:size(Upwr,2)
+     Cimp  = imag(C(:))-Upwr(:,1:rnk)*(Upwr(:,1:rnk)'*imag(C(:)));
+     nrmim(k) = norm(Cimp(:))/norm(imag(C(:)));
+     k = k+1;
+end;
 
 Cp = reshape(Cpvec,size(C,1),size(C,2));
 
 %% normalize forward matrix
-for i = 1:Nsrc
-    range_i = i*2-1:i*2;
-    G2dU(:,range_i(1)) = G2dU(:,range_i(1))/norm(G2dU(:,range_i(1)));
-    G2dU(:,range_i(2)) = G2dU(:,range_i(2))/norm(G2dU(:,range_i(2)));
-end;
+% 
+% for i = 1:Nsrc
+%     range_i = i*2-1:i*2;
+%     G2dU(:,range_i(1)) = G2dU(:,range_i(1))/norm(G2dU(:,range_i(1)));
+%     G2dU(:,range_i(2)) = G2dU(:,range_i(2))/norm(G2dU(:,range_i(2)));
+% end;
 
 %% scan all pairs with efficient vectorised implementation
 Cprap = Cp;
@@ -64,6 +65,7 @@ Urap = [];
 range2 = 1:2;
 indep_topo = zeros(prod(size(Cprap)),RAPIts*2);
 c_ss_hat = zeros(1,RAPIts*2);
+UitP = [];
 for rap = 1:RAPIts
     [Cs(rap,:), IND, Cs0] =PSIICOS_ScanFast(G2dU, Cprap);
     [val_max ind_max] = max(Cs(rap,:));
@@ -93,16 +95,20 @@ for rap = 1:RAPIts
     qijp = qij(:) - Upwr*(Upwr'*qij(:));
     qjip = qji(:) - Upwr*(Upwr'*qji(:));
     qp = [qijp,qjip];
+    Qp(:,range2) = qp;
     c_ss_hat(1,range2) = (pinv(qp)*Cprap(:))';
-    SubC(rap) = subcorr(Cprap(:),qp);
-    Cprap_vec = Cprap(:)-qp*(pinv(qp)*Cprap(:));
-    Cprap = reshape(Cprap_vec,size(Cprap));
+    [SubC(rap),T1,T2] = subcorr(Cprap(:),qp);
     indep_topo(:,range2) = qp;
-    PVU(rap) = norm(Cp(:) - indep_topo*c_ss_hat')/norm(Cp(:));
+    [Uit,Sit,Vit] = svd(indep_topo(:,1:range2(end)));
+    tolIT = size(indep_topo,1) * Sit(1) * eps;
+    rIT = sum(diag(Sit) > tolIT);
+    UitP = Uit(:,1:rIT);
+    
+    Cprap_vec = Cp(:) - UitP*(UitP'*Cp(:));
+    Cprap = reshape(Cprap_vec,size(Cprap));
+    PVU(rap) = norm(Cprap(:))/norm(Cp(:));
+    Auxp = Aux - UitP*(UitP'*Aux);
     INDrap(rap,1) = i; 
     INDrap(rap,2) = j; 
     range2 = range2+2;
   end
-
-    
-
