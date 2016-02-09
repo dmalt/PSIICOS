@@ -1,4 +1,4 @@
-function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, RAPIts, Rnk, Upwr)
+function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(C, G2dU, G2_HR, GridLocLR, GridLocHR, RAPIts, Rnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Power and Shift Independent Imaging of Coherent Sources (PSIICOS) in MEG data
 % --------------------------------------------------------------------------------------------------
@@ -67,7 +67,6 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
     %end;
 
     Cp = reshape(Cpvec, size(C, 1), size(C, 2));
-
     %% normalize forward matrix
      
      for i = 1:Nsrc
@@ -76,25 +75,58 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
          G2dU(:, range_i(2)) = G2dU(:, range_i(2)) / norm(G2dU(:, range_i(2)));
      end;
 
+     NsrcHR = size(G2_HR, 2) / 2;
+     for i = 1:NsrcHR
+         range_i = i * 2 - 1 : i *  2;
+         G2_HR(:, range_i(1)) = G2_HR(:, range_i(1)) / norm(G2_HR(:, range_i(1)));
+         G2_HR(:, range_i(2)) = G2_HR(:, range_i(2)) / norm(G2_HR(:, range_i(2)));
+     end;
     %% scan all pairs with efficient vectorised implementation
     Cprap = Cp;
     Urap = [];
     range2 = 1:2;
     indep_topo = zeros(prod(size(Cprap)), RAPIts * 2);
     c_ss_hat = zeros(1, RAPIts * 2);
+
+    radius_sq = 4e-4; % look 
     for rap = 1:RAPIts
+        Cprap = Cprap / norm(Cprap(:));
         % Look at the topography of a pair that is
         % most correlated with the cross-spectrum
         [Cs(rap,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cprap);
         [val_max ind_max] = max(Cs(rap,:));
+        sqrt(2*val_max)
         pair_max = IND(ind_max,:);
         i = IND(ind_max, 1); 
         j = IND(ind_max, 2);
-        range_i = i * 2 - 1 : i * 2;
-        range_j = j * 2 - 1 : j * 2;
-        ai = G2dU(:, i * 2 - 1 : i * 2);
-        aj = G2dU(:, j * 2 - 1 : j * 2);
-        % cs = ai' * Cprap * aj;
+        % -------------------------------------------------------------------------- %
+        xyz_i = GridLocLR(i,:);
+        xyz_j = GridLocLR(j,:);
+
+        temp_i_Loc = sum(  ( GridLocHR - repmat(xyz_i, [size(GridLocHR, 1), 1]) ) .^ 2, 2  );
+        temp_j_Loc = sum(  ( GridLocHR - repmat(xyz_j, [size(GridLocHR, 1), 1]) ) .^ 2, 2  );
+
+        IND_i = find(temp_i_Loc < radius_sq);
+        IND_j = find(temp_j_Loc < radius_sq);
+
+        IND2_i = [IND_i * 2 - 1, IND_i * 2]';
+        IND2_j = [IND_j * 2 - 1, IND_j * 2]';
+
+        IND2 = [IND2_i, IND2_j];
+        G2_HR_local = G2_HR(:, IND2);
+        % Scan one more time on a denser grid %
+        [Cs_HR, IND_HR, Cs0_HR] = PSIICOS_ScanFast(G2_HR_local, Cprap);
+        [val_max_HR ind_max_HR] = max(Cs_HR(:));
+        sqrt(2*val_max_HR)
+        i_HR = IND_HR(ind_max_HR, 1); 
+        j_HR = IND_HR(ind_max_HR, 2);
+        % --------------------------------------------------------------------------- %
+
+        range_i = i_HR * 2 - 1 : i_HR * 2;
+        range_j = j_HR * 2 - 1 : j_HR * 2;
+        ai = G2_HR_local(:, i_HR * 2 - 1 : i_HR * 2);
+        aj = G2_HR_local(:, j_HR * 2 - 1 : j_HR * 2);
+        cs = ai' * Cprap * aj;
         % [u s v] = svd(cs);
         % % u and v are complex but the orientation vectors of dipoles are physical and
         % % therefore can not be defined over the field of complex numbers. 
