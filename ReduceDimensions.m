@@ -55,13 +55,13 @@ function ConData = ReduceDimensions(ConData, ChUsed, bUseHR, bKeepLR, bClearHM)
             ConData{c} = rmfield(ConData{c}, 'HM_LR');
         end
 
-        % if(bUseHR)
-        %     ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
-        %     ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
-        %     % reduce tangent space
-        %     ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
-        %     % Probably need to add here a part for sensor space reduction in case of 
-        %     % high resolution gain matrix
-        % end;
+        if(bUseHR)
+            ConData{c}.NsitesHR = size(ConData{c}.HM_HR.GridLoc, 1);
+            ConData{c}.G2dHR = zeros(Nch, ConData{c}.NsitesHR * 2);
+            % reduce tangent space
+            ConData{c}.G2dHR = ReduceTangentSpace(ConData{c}.NsitesHR, ConData{c}.HM_HR.Gain, ChUsed);
+            % Probably need to add here a part for sensor space reduction in case of 
+            % high resolution gain matrix
+        end;
         c;
     end;
