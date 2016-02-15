@@ -91,7 +91,7 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
 
     radius_sq = 4e-4; % look 
     for rap = 1:RAPIts
-        Cprap = Cprap / norm(Cprap(:));
+        % Cprap = Cprap / norm(Cprap(:));
         % Look at the topography of a pair that is
         % most correlated with the cross-spectrum
         [Cs(rap,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cprap);
@@ -100,6 +100,8 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         pair_max = IND(ind_max,:);
         i = IND(ind_max, 1); 
         j = IND(ind_max, 2);
+        % i = randi(2003);
+        % j = randi(2003);
         % -------------------------------------------------------------------------- %
         xyz_i = GridLocLR(i,:);
         xyz_j = GridLocLR(j,:);
@@ -156,6 +158,7 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         qjip = qji(:) - Upwr * (Upwr' * qji(:));
         qp = [qijp, qjip];
         c_ss_hat(1, range2) = (pinv(qp) * Cprap(:))';
+        % c_ss_hat(1, range2) = (pinv(qp) * Cp(:))';
         SubC(rap) = subcorr(Cprap(:), qp);
         % Project the cross-spectrum away from the most 
         % correlated source
