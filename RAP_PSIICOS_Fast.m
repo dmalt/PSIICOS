@@ -67,6 +67,7 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
     %end;
 
     Cp = reshape(Cpvec, size(C, 1), size(C, 2));
+    Cp = Cp / norm(Cp(:));
     %% normalize forward matrix
      
      for i = 1:Nsrc
