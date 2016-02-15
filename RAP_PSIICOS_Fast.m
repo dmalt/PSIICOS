@@ -94,7 +94,7 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
         range_j = j * 2 - 1 : j * 2;
         ai = G2dU(:, i * 2 - 1 : i * 2);
         aj = G2dU(:, j * 2 - 1 : j * 2);
-        % cs = ai' * Cprap * aj;
+        cs = ai' * Cprap * aj;
         % [u s v] = svd(cs);
         % % u and v are complex but the orientation vectors of dipoles are physical and
         % % therefore can not be defined over the field of complex numbers. 
