@@ -1,5 +1,5 @@
 % function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
-function [INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
+function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Project from VC and do thresholding on correlations of sources with the cross-spectrum
 % --------------------------------------------------------------------------------------------------
@@ -30,11 +30,11 @@ function [INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
     %% Preparatory steps
-    if(nargin < 3)
+    if(nargin < 4)
         Rnk  = 350;
     end;
 
-    if(nargin < 4)
+    if(nargin < 5)
         Upwr  = [];
     end;
 
@@ -52,10 +52,10 @@ function [INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
     %% perform projection of the coherence matrix away from the power only
     if(isempty(Upwr))
         % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
-        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C(:), G2dU, Rnk);
+        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, Rnk);
     else % use the existing matrix if profided
-        c = Upwr' * C(:);
-        Cpvec  = C(:) - Upwr * c;
+        c = Upwr' * C;
+        Cpvec  = C - Upwr * c;
     end;
 
     %k =1;
@@ -65,8 +65,13 @@ function [INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
     %     k = k+1;
     %end;
 
-    Cp = reshape(Cpvec, size(C, 1), size(C, 2));
-
+    % Cp = reshape(Cpvec, size(C, 1), size(C, 2));
+    [uc,sc,vc] = svd(Cpvec, 'econ');
+    % SigRnk = 2;
+    Cp = uc(:,1:SigRnk);
+    % Cp = sum(Cpvec,2);
+    % Cp = Cp / norm(Cp, 'fro');
+    % Cp = Cpvec;
     %% normalize forward matrix
      
      for i = 1:Nsrc
@@ -87,8 +92,8 @@ function [INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
     % for rap = 1:RAPIts
         % Look at the topography of a pair that is
         % most correlated with the cross-spectrum
-    Cp = Cp / norm(Cp, 'fro');
-    corr_threshold = 0.28;
+    % Cp = Cp / norm(Cp, 'fro');
+    corr_threshold = 0.38;
     [Cs(1,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cp);
     % [val_max ind_max] = max(Cs(rap,:));
     ind_threshold = find(sqrt(Cs * 2) > corr_threshold);
