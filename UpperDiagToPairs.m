@@ -16,6 +16,7 @@ function IND = UpperDiagToPairs(N)
 %   IND           - {N * (N - 1) / 2 x 2} matrix;
 % ________________________________________
 % Dmitrii Altukhov, dm.altukhov@ya.ru
+	IND = zeros(N * (N - 1) / 2, 2);
 	p = 1;
 	for i = 1:N
 		for j = i + 1: N
