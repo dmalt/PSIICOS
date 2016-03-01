@@ -1,9 +1,9 @@
-function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
+function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Project from VC and do thresholding on correlations of sources with the cross-spectrum
 % --------------------------------------------------------------------------------------------------
 % FORMAT:
-%   [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, RAPIts, corr_threshold, Rnk, Upwr) 
+%   [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, corr_threshold, Rnk, SigRnk, Upwr) 
 % INPUTS:
 %   C        - {N_sensors_reduced x N_sensors_reduced} sensor-space cross-spectral matrix
 %   G2dU     - {N_sensors_reduced x N_sources} forward model matrix such that each source 
@@ -13,6 +13,8 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
 %   Rnk      - scalar; rank of Volume Conduction subspace. The bigger this value
 %              is the more data will be removed by the projection from VC. On the
 %              contrary, the smaller it is the more VC-related activity will remain in the data.
+%   SigRnk   - scalar; number of components left after dimensionality reduction of signal space
+%              if SigRnk = 0, use sum of cross-spectrum across the time domain 
 %   Upwr     - {N_sensors_reduced ^ 2 x Rnk} VC subspace basis matrix. 
 %              Columns of Upwr span the VC subspace
 % OUTPUTS:
@@ -45,7 +47,6 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
 
     Nsrc = size(G2dU, 2) / 2; % two topography columns per each source of the grid
     Nch = size(G2dU, 1);
-
     %% perform projection of the coherence matrix away from the power only
     if(isempty(Upwr))
         % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
@@ -85,7 +86,12 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
     % Look at the topography of a pair that is
     % most correlated with the cross-spectrum
     [Cs(1,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cp);
-    ind_threshold = find(sqrt(Cs * 2) > corr_threshold);
+    corr_min  = min(Cs);
+    corr_max = max(Cs);
+    corr_delta = corr_max - corr_min;
+    corr_threshold = corr_min + corr_delta * rel_threshold;
+    % ind_threshold = find(sqrt(Cs * 2) > corr_threshold);
+    ind_threshold = find(Cs > corr_threshold);
     pair_max = IND(ind_threshold,:);
     i = IND(ind_threshold, 1); 
     j = IND(ind_threshold, 2);
