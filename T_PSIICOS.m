@@ -47,7 +47,7 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk,
 
     Nsrc = size(G2dU, 2) / 2; % two topography columns per each source of the grid
     Nch = size(G2dU, 1);
-    %% perform projection of the coherence matrix away from the power only
+    % perform projection of the coherence matrix away from the power only
     if(isempty(Upwr))
         % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
         [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, Rnk);
@@ -55,7 +55,8 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk,
         c = Upwr' * C;
         Cpvec  = C - Upwr * c;
     end;
-
+    % Cpvec = C;
+    
     if SigRnk
         [uc,sc,vc] = svd(Cpvec, 'econ');
         Cp = uc(:,1:SigRnk);
@@ -97,3 +98,6 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk,
     j = IND(ind_threshold, 2);
     INDrap(:,1) = i;
     INDrap(:,2) = j;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
