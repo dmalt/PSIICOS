@@ -29,9 +29,9 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk,
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
     %% Preparatory steps
-    if(nargin < 5)
-        Rnk  = 350;
-    end;
+    % if(nargin < 5)
+    %     Rnk  = 350;
+    % end;
 
     if(nargin < 6)
         Upwr  = [];
