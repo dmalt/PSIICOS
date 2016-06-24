@@ -1,4 +1,4 @@
-function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk, Upwr)
+function [INDrap, Cpvec, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Project from VC and do thresholding on correlations of sources with the cross-spectrum
 % --------------------------------------------------------------------------------------------------
@@ -37,7 +37,11 @@ function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk,
         Upwr  = [];
     end;
 
-    if(isempty(Rnk))
+    if nargin < 5
+        SigRnk = 0;
+    end
+
+    if nargin < 4
         if(isempty(Upwr))
             Rnk = 350;
         else
