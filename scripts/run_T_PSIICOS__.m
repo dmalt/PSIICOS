@@ -31,7 +31,7 @@ timeRange = [0, 0.7];
 condName = 'test';
 sim_son = Connections('test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx);
 
-sim_son.PlotCon()
+sim_con.Plot()
 % % INDrap = INDrap(1:10:end,:)
 % Ctx = load('/home/dmalt/PSIICOS_osadtchii/anat/0003_pran/tess_cortex_concat.mat');
 % drawConnectionsOnBrain(INDrap, R, 1, Ctx);
