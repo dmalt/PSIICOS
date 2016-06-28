@@ -1,6 +1,6 @@
-function [CTp,Upwr,ds,nrmre,nrmim,nrmvc] = ProjectAwayFromPowerComplete( CT, G2dU, PwrRnk)
+function [CTp,Upwr,ds,nrmre,nrmim,nrmvc] = ProjectAwayFromPowerComplete(CT, G2dU, PwrRnk)
 
-if(nargin<3)
+if(nargin < 3)
     PwrRnk = 350;
 end;
 if(nargin<2)
@@ -30,8 +30,9 @@ for i=1:Ns
 end;
 
 fprintf('Finding eigen space...\n');
-AA = A * A';
-[u s] = eigs(AA, PwrRnk);
+% AA = A * A';
+% [u s] = eigs(AA, PwrRnk);
+[u s] = svd(A, 'econ');
 ds = diag(s);
 Upwr = u(:, 1:PwrRnk);
 if(size(CT,1) ~= size(Upwr,1))
