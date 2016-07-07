@@ -1,4 +1,16 @@
 function [CTp,Upwr,ds,nrmre,nrmim,nrmvc] = ProjectAwayFromPowerComplete(CT, G2dU, PwrRnk)
+% -------------------------------------------------------
+% description
+% -------------------------------------------------------
+% FORMAT:
+%   [CTp,Upwr,ds,nrmre,nrmim,nrmvc] = ProjectAwayFromPowerComplete(CT, G2dU, PwrRnk) 
+% INPUTS:
+%   inputs        -
+% OUTPUTS:
+%   outputs
+% ________________________________________
+% Dmitrii Altukhov, dm.altukhov@ya.ru
+
 
 if(nargin < 3)
     PwrRnk = 350;

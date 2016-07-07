@@ -1,9 +1,9 @@
-function CT = ProjeAwayFromCond(CT1, CT2)
+function CT = ProjAwayFromCond(CT1, CT2)
 % -------------------------------------------------------
-% ProjectAwayFromCond: project cross-spectrum CT1 from CT2
+% ProjAwayFromCond: project cross-spectrum CT1 from CT2
 % -------------------------------------------------------
 % FORMAT:
-%   CT = ProjectAwayFromCond(CT1, CT2) 
+%   CT = ProjAwayFromCond(CT1, CT2) 
 % INPUTS:
 %   CT1        - {N_sensors_reduced ^ 2 x Ntimes} cross-spectrum
 %                matrix for conditon 1
