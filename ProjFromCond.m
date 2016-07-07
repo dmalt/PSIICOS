@@ -1,19 +1,29 @@
-function CT = ProjAwayFromCond(CT1, CT2)
+function CT = ProjFromCond(CT1, CT2, rnk)
 % -------------------------------------------------------
-% ProjAwayFromCond: project cross-spectrum CT1 from CT2
+% Project cross-spectrum CT1 from CT2
 % -------------------------------------------------------
 % FORMAT:
-%   CT = ProjAwayFromCond(CT1, CT2) 
+%   CT = ProjFromCond(CT1, CT2) 
 % INPUTS:
 %   CT1        - {N_sensors_reduced ^ 2 x Ntimes} cross-spectrum
 %                matrix for conditon 1
 %   CT2        - {N_sensors_reduced ^ 2 x Ntimes} cross-spectrum
 %                matrix for conditon 2
+%   rnk        - integer scalar; rank of projector from CT2
 % OUTPUTS:
 %   CT         - {N_sensors_reduced ^ 2 x Ntimes} cross-spectrum
 %                matrix for condition 1 projected away from
 %                condition 2
 % ________________________________________
 % Dmitrii Altukhov, dm.altukhov@ya.ru
-	[u, s, v] = svd(CT2);
-	CT = CT1 - u(:,1:6) * u(:,1:6)' * CT1;
+	if nargin < 3
+		rnk = 6;
+	end
+
+	[u, ~, ~] = svd(CT2);
+	if rnk <= size(u, 2)
+		CT = CT1 - u(:,1:rnk) * u(:,1:rnk)' * CT1;
+	else
+		error('InputError: ValueOutOfRange', 'rnk is bigger then size(CT2,1)');
+	end
+end
