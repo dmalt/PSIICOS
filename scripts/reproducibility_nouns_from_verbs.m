@@ -18,11 +18,13 @@ for iSubj = 1:length(subjNames)
 	trials_4 = LoadTrials(curName, cond_verb, band, tRange);
 
 	CT_2 = CrossSpectralTimeseries(trials_2.data);
+	CT_2 = ProjectAwayFromPowerComplete(CT_2, HM.gain);
+
 	CT_4 = CrossSpectralTimeseries(trials_4.data);
+	CT_4 = ProjectAwayFromPowerComplete(CT_4, HM.gain);
 	iRnk = 1;
 	for rnk = 0:20
 		CT_2_from_4 = ProjFromCond(CT_2, CT_4, rnk);
-		CT_2_from_4 = ProjectAwayFromPowerComplete(CT_2_from_4, HM.gain);
 		CT_2_from_4 = RestoreCTdim(CT_2_from_4, HM.UP);
 		conInds_2_from_4{iSubj}{iRnk} = SensorConnectivity((CT_2_from_4), 100);
 		iRnk = iRnk + 1;
@@ -45,4 +47,5 @@ for rnk = 0:20
 	std_2_from_4(iRnk) = std(CS_2_from_4(:,iRnk));
 	iRnk = iRnk + 1;
 end
+errorbar(0:20, mean_2_from_4, std_2_from_4, 'bs-')
 	% ------------------------------------------------ %
