@@ -3,7 +3,7 @@ setup_subjNames
 setup_chLoc
 
 cond_noun = '2';
-cond_verb = '4';
+cond_pseudoword = '1';
 band = [16,25];
 tRange = [0,0.7];
 sFreq = 500;
@@ -15,7 +15,7 @@ for iSubj = 1:length(subjNames)
 	curName = subjNames{iSubj};
 	HM = LoadHeadModel(curName, cond_noun);
 	trials_2 = LoadTrials(curName, cond_noun, band, tRange);
-	trials_4 = LoadTrials(curName, cond_verb, band, tRange);
+	trials_4 = LoadTrials(curName, cond_pseudoword, band, tRange);
 
 	CT_2 = CrossSpectralTimeseries(trials_2.data);
 	CT_2 = ProjectAwayFromPowerComplete(CT_2, HM.gain);
@@ -47,5 +47,5 @@ for rnk = 0:20
 	std_2_from_4(iRnk) = std(CS_2_from_4(:,iRnk));
 	iRnk = iRnk + 1;
 end
-errorbar(0:20, mean_2_from_4, std_2_from_4, 'bs-')
+errorbar(0:20, mean_2_from_4, std_2_from_4 ./ sqrt(10), 'bs-')
 	% ------------------------------------------------ %
