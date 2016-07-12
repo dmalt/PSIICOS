@@ -2,10 +2,10 @@ clear all;
 setup_subjNames
 setup_chLoc
 
-cond_noun = '2';
-cond_pseudoword = '4';
-band = [16,25];
-tRange = [0,0.7];
+cond_main = '2';
+cond_proj_from = '4';
+band = [18,22];
+tRange = [0,0.3];
 sFreq = 500;
 
 
@@ -13,20 +13,21 @@ sFreq = 500;
 for iSubj = 1:length(subjNames)
 % for iSubj = 1:1
 	curName = subjNames{iSubj};
-	HM = LoadHeadModel(curName, cond_noun);
-	trials_2 = LoadTrials(curName, cond_noun, band, tRange);
-	trials_4 = LoadTrials(curName, cond_pseudoword, band, tRange);
+	HM = LoadHeadModel(curName, cond_main);
+	trials_main = LoadTrials(curName, cond_main, band, tRange);
+	trials_proj_from = LoadTrials(curName, cond_proj_from, band, tRange);
 
-	CT_2 = CrossSpectralTimeseries(trials_2.data);
-	CT_2 = ProjectAwayFromPowerComplete(CT_2, HM.gain);
+	CT_m = CrossSpectralTimeseries(trials_main.data);
+	CT_m = ProjectAwayFromPowerComplete(CT_m, HM.gain);
+	CT_m = RestoreCTdim(CT_m, HM.UP);
 
-	CT_4 = CrossSpectralTimeseries(trials_4.data);
-	CT_4 = ProjectAwayFromPowerComplete(CT_4, HM.gain);
-	iRnk = 1;
+	% CT_p = CrossSpectralTimeseries(trials_proj_from.data);
+	% CT_p = ProjectAwayFromPowerComplete(CT_p, HM.gain);
 	
-	CT_diff = CT_2 - CT_4;
-	CT_diff = RestoreCTdim(CT_diff, HM.UP);
-	conInds_diff{iSubj} = SensorConnectivity((CT_diff), 100);
+	% CT_diff = CT_m - CT_p;
+	conInds_full{iSubj} = SensorConnectivity((CT_m), 100);
+	conInds_real{iSubj} = SensorConnectivity(real(CT_m), 100);
+	conInds_imag{iSubj} = SensorConnectivity(imag(CT_m), 100);
 end
 
 
@@ -34,13 +35,17 @@ count = 1;
 for s1 = 1:10
    for s2 = s1+1:10
        if(s1~=s2)
-           CS_diff(count) = ConnectivitySimilarity(conInds_diff{s1}, conInds_diff{s2}, ChLoc);
+           CS_full(count) = ConnectivitySimilarity(conInds_full{s1}, conInds_full{s2}, ChLoc);
+           CS_real(count) = ConnectivitySimilarity(conInds_real{s1}, conInds_real{s2}, ChLoc);
+           CS_imag(count) = ConnectivitySimilarity(conInds_imag{s1}, conInds_imag{s2}, ChLoc);
            count = count + 1;
        end
    end;
 end;
 
 
-mean_diff = mean(CS_diff)
+mean_full = mean(CS_full)
+mean_real = mean(CS_real)
+mean_imag = mean(CS_imag)
 
 	% ------------------------------------------------ %
