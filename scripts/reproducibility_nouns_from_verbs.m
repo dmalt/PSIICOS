@@ -1,52 +1,45 @@
-clear all;
+% clear all;
 setup_subjNames
 setup_chLoc
 
-cond_noun = '4';
-cond_pseudoword = '1';
+main_cond = '2';
+proj_cond = '1';
 band = [18,22];
 tRange = [0,0.7];
 sFreq = 500;
-
+d_min = 0.05; % minimal allowed length for connections
+nConn_ini = 200; % initial number of connections
+nConn = 100; % number of connections to end up with
 
 % --------------- 3. PSIICOS .3 ------------------ % 
 for iSubj = 1:length(subjNames)
-% for iSubj = 1:1
 	curName = subjNames{iSubj};
-	HM = LoadHeadModel(curName, cond_noun);
-	trials_2 = LoadTrials(curName, cond_noun, band, tRange);
-	trials_4 = LoadTrials(curName, cond_pseudoword, band, tRange);
 
-	CT_2 = CrossSpectralTimeseries(trials_2.data);
-	CT_2 = ProjectAwayFromPowerComplete(CT_2, HM.gain);
+	HM = LoadHeadModel(curName, main_cond);
 
-	CT_4 = CrossSpectralTimeseries(trials_4.data);
-	CT_4 = ProjectAwayFromPowerComplete(CT_4, HM.gain);
+	tr_m   = LoadTrials(curName, main_cond, band, tRange);
+	tr_prf = LoadTrials(curName, proj_cond, band, tRange);
 
-	CT_2_from_4 = ProjFromCond(CT_2, CT_4, 6);
-	CT_2_from_4 = RestoreCTdim(CT_2_from_4, HM.UP);
-	% conInds_2_from_4{iSubj} = SensorConnectivity((CT_2_from_4), 100);
+	CT_m   = CrossSpectralTimeseries(tr_m.data);
+	CT_prf = CrossSpectralTimeseries(tr_prf.data);
 
-	conInds_full{iSubj} = SensorConnectivity((CT_2_from_4), 100);
-    conInds_real{iSubj} = SensorConnectivity(real(CT_2_from_4), 100);
-    conInds_imag{iSubj} = SensorConnectivity(imag(CT_2_from_4), 100);
+	CT_m   = ProjectAwayFromPowerComplete(CT_m, HM.gain);
+	CT_prf = ProjectAwayFromPowerComplete(CT_prf, HM.gain);
 
+	CT_pr = ProjFromCond(CT_m, CT_prf, 6);
+
+	CT_pr = RestoreCTdim(CT_pr, HM.UP);
+
+	conInds_full{iSubj} = SensorConnectivity(CT_pr,       nConn_ini);
+	conInds_real{iSubj} = SensorConnectivity(real(CT_pr), nConn_ini);
+	conInds_imag{iSubj} = SensorConnectivity(imag(CT_pr), nConn_ini);
+
+	conInds_full{iSubj} = DropLongConn(conInds_full{iSubj}, ChLoc, d_min, nConn);
+	conInds_real{iSubj} = DropLongConn(conInds_real{iSubj}, ChLoc, d_min, nConn);
+	conInds_imag{iSubj} = DropLongConn(conInds_imag{iSubj}, ChLoc, d_min, nConn);
 end
 
-count = 1;
-for s1 = 1:10
-   for s2 = s1+1:10
-       if(s1~=s2)
-           CS_full(count) = ConnectivitySimilarity(conInds_full{s1}, conInds_full{s2}, ChLoc);
-           CS_real(count) = ConnectivitySimilarity(conInds_real{s1}, conInds_real{s2}, ChLoc);
-           CS_imag(count) = ConnectivitySimilarity(conInds_imag{s1}, conInds_imag{s2}, ChLoc);
-           count = count + 1;
-       end
-   end;
-end;
-
-
-mean_full = mean(CS_full)
-mean_real = mean(CS_real)
-mean_imag = mean(CS_imag)
+[mean_full, std_full, CS_full] = ConnSimMetrics(conInds_full, ChLoc);
+[mean_real, std_real, CS_real] = ConnSimMetrics(conInds_real, ChLoc);
+[mean_imag, std_imag, CS_imag] = ConnSimMetrics(conInds_imag, ChLoc);
 	% ------------------------------------------------ %
