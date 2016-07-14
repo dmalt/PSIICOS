@@ -1,15 +1,7 @@
-subjNames = {   '0003_pran', ... % 1
-				'0019_shev', ... % 2
-				'0030_koal', ... % 3
-				'0108_bami', ... % 3
-				'0062_peek', ... % 5
-				'0074_kuni', ... % 6
-				'0100_kase', ... % 7
-				'0106_supo', ... % 8
-				'0109_zvma', ... % 9
-				'0130_hagr'};    % 10
+setup_subjNames;
+
 cond = '2';
-band = [16,25];
+band = [20,24];
 tRange = [0,0.7];
 sFreq = 500;
 ChUsed = PickChannels('grad');
