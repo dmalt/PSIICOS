@@ -17,7 +17,7 @@ for iSubj = 1:length(subjNames)
 	trials = LoadTrials(curName, cond, band, tRange);
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = RestoreCTdim(CT, HM.UP);
-	conInds = SensorConnectivity((CT), 100);
+	conInds = GetSensorConnectivity((CT), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -36,7 +36,7 @@ for iSubj = 1:length(subjNames)
 	trials = LoadTrials(curName, cond, band, tRange);
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = RestoreCTdim(CT, HM.UP);
-	conInds = SensorConnectivity(imag(CT), 100);
+	conInds = GetSensorConnectivity(imag(CT), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -56,7 +56,7 @@ for iSubj = 1:length(subjNames)
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = ProjectAwayFromPowerComplete(CT, HM.gain);
 	CT = RestoreCTdim(CT, HM.UP);
-	conInds{iSubj} = SensorConnectivity((CT), 100);
+	conInds{iSubj} = GetSensorConnectivity((CT), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds{iSubj});
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -85,7 +85,7 @@ for iSubj = 1:length(subjNames)
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = ProjectAwayFromPowerComplete(CT, HM.gain);
 	CT = RestoreCTdim(CT, HM.UP);
-	conInds = SensorConnectivity(real(CT), 100);
+	conInds = GetSensorConnectivity(real(CT), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -105,7 +105,7 @@ for iSubj = 1:length(subjNames)
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = ProjectAwayFromPowerComplete(CT, HM.gain);
 	CT = RestoreCTdim(CT, HM.UP);
-	conInds = SensorConnectivity(imag(CT), 100);
+	conInds = GetSensorConnectivity(imag(CT), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -124,7 +124,7 @@ for iSubj = 1:length(subjNames)
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = RestoreCTdim(CT, HM.UP);
 	CohTS = Cp2Coh(CT);
-	conInds = SensorConnectivity(CohTS, 100);
+	conInds = GetSensorConnectivity(CohTS, 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -143,7 +143,7 @@ for iSubj = 1:length(subjNames)
 	CT = CrossSpectralTimeseries(trials.data);
 	CT = RestoreCTdim(CT, HM.UP);
 	CohTS = Cp2Coh(CT);
-	conInds = SensorConnectivity(imag(CohTS), 100);
+	conInds = GetSensorConnectivity(imag(CohTS), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -161,7 +161,7 @@ for iSubj = 1:length(subjNames)
 	trials = LoadTrials(curName, cond, band, tRange);
 	Tr = RestoreTrDim(trials.data, HM.UP);
 	PLV = PLVMatrix(Tr, band, sFreq, false);
-	conInds = SensorConnectivity(PLV(:), 100);
+	conInds = GetSensorConnectivity(PLV(:), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -179,7 +179,7 @@ for iSubj = 1:length(subjNames)
 	trials = LoadTrials(curName, cond, band, tRange);
 	Tr = RestoreTrDim(trials.data, HM.UP);
 	PLI = PLIMatrix(Tr, band, sFreq, false);
-	conInds = SensorConnectivity(PLI(:), 100);
+	conInds = GetSensorConnectivity(PLI(:), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );
@@ -196,7 +196,7 @@ for iSubj = 1:length(subjNames)
 	trials = LoadTrials(curName, cond, band, tRange);
 	Tr = RestoreTrDim(trials.data, HM.UP);
 	wPLI = wPLIMatrix(Tr, band, sFreq, false);
-	conInds = SensorConnectivity(wPLI(:), 100);
+	conInds = GetSensorConnectivity(wPLI(:), 100);
 	subplot(2,5,iSubj);
 	h_ax = DrawConnectionsOnSensors(conInds);
 	% h_title = title(h_ax, [num2str(band), ' Hz ', num2str(tRange), ' s'] );

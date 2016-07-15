@@ -28,9 +28,9 @@ for iSubj = 1:length(subjNames)
 	CT_m = ProjectAwayFromPowerComplete(CT_m, HM.gain);
 	CT_m = RestoreCTdim(CT_m, HM.UP);
 
-	conInds_full{iSubj} = SensorConnectivity((CT_m), 100);
-	conInds_real{iSubj} = SensorConnectivity(real(CT_m), 100);
-	conInds_imag{iSubj} = SensorConnectivity(imag(CT_m), 100);
+	conInds_full{iSubj} = GetSensorConnectivity((CT_m), 100);
+	conInds_real{iSubj} = GetSensorConnectivity(real(CT_m), 100);
+	conInds_imag{iSubj} = GetSensorConnectivity(imag(CT_m), 100);
 end
 
 

@@ -30,9 +30,9 @@ for iSubj = 1:length(subjNames)
 
 	CT_pr = RestoreCTdim(CT_pr, HM.UP);
 
-	conInds_full{iSubj} = SensorConnectivity(CT_pr,       nConn_ini);
-	conInds_real{iSubj} = SensorConnectivity(real(CT_pr), nConn_ini);
-	conInds_imag{iSubj} = SensorConnectivity(imag(CT_pr), nConn_ini);
+	conInds_full{iSubj} = GetSensorConnectivity(CT_pr,       nConn_ini);
+	conInds_real{iSubj} = GetSensorConnectivity(real(CT_pr), nConn_ini);
+	conInds_imag{iSubj} = GetSensorConnectivity(imag(CT_pr), nConn_ini);
 
 	conInds_full{iSubj} = DropLongConn(conInds_full{iSubj}, ChLoc, d_min, nConn);
 	conInds_real{iSubj} = DropLongConn(conInds_real{iSubj}, ChLoc, d_min, nConn);
