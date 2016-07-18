@@ -19,11 +19,14 @@ for iSubj = 1:length(subjNames)
 
 	HM = LoadHeadModel(curName, main_cond);
 
-	tr_m   = LoadTrials(curName, main_cond, band, tRange);
-	tr_prf = LoadTrials(curName, proj_cond, band, tRange);
+	% tr_m   = LoadTrials(curName, main_cond, band, tRange);
+	% tr_prf = LoadTrials(curName, proj_cond, band, tRange);
 
-	CT_m   = CrossSpectralTimeseries(tr_m.data);
-	CT_prf = CrossSpectralTimeseries(tr_prf.data);
+	CT_m = GetCTS(curName, main_cond, band, tRange);
+	CT_prf = GetCTS(curName, proj_cond, band, tRange);
+
+	% CT_m   = CrossSpectralTimeseries(tr_m.data);
+	% CT_prf = CrossSpectralTimeseries(tr_prf.data);
 
 	CT_m   = ProjectAwayFromPowerComplete(CT_m, HM.gain);
 	CT_prf = ProjectAwayFromPowerComplete(CT_prf, HM.gain);
