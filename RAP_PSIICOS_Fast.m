@@ -53,7 +53,7 @@ function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(
     %% perform projection of the coherence matrix away from the power only
     if(isempty(Upwr))
         % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
-        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C(:), G2dU, Rnk);
+        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, Rnk);
     else % use the existing matrix if profided
         c = Upwr' * C(:);
         Cpvec  = C(:) - Upwr * c;
