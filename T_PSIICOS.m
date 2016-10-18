@@ -90,7 +90,7 @@ function [INDrap, Cpvec, Upwr, Cs] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigR
 
     % Look at the topography of a pair that is
     % most correlated with the cross-spectrum
-    [Cs(1,:), IND, Cs0] = PSIICOS_ScanFast(G2dU, Cp);
+    [Cs(1,:), IND] = PSIICOS_ScanFast(G2dU, Cp);
     corr_min  = min(Cs);
     corr_max = max(Cs);
     corr_delta = corr_max - corr_min;

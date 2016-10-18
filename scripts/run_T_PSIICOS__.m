@@ -23,15 +23,17 @@ load GLowRes;
 % 	save('Sim.mat', 'GLR', 'GHR', 'C_long', 'GridLocLR', 'GridLocHR', '-v7.3');
 % end	
 % Cond.CT1 = reshape(sum(Cond.CT, 2), 43, 43);
-rel_threshold = 0.6;
-[HM, Cp, ~, Ctx] = GenerData(pi / 3, 100);
+rel_threshold = 0.4;
+[HM, Cp, ~, Ctx] = GenerData(pi / 20, 100);
 [INDrap, Cp, Upwr, Cs] = T_PSIICOS(Cp, HM.gain, rel_threshold);
-freqBand = [19,23];
+
+% [~, ~, ~, ~, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(Cp, HM.gain, 3, Rnk)
+freqBand = [8,12];
 timeRange = [0, 0.7];
 condName = 'test';
-sim_son = Connections('test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx);
+sim_con = Connections('test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx);
 
-sim_con.Plot()
+sim_con.Plot(0.4)
 % % INDrap = INDrap(1:10:end,:)
 % Ctx = load('/home/dmalt/PSIICOS_osadtchii/anat/0003_pran/tess_cortex_concat.mat');
 % drawConnectionsOnBrain(INDrap, R, 1, Ctx);

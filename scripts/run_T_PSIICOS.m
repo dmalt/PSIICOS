@@ -1,5 +1,6 @@
 rel_threshold = 0.9;
 SigRnk = 0;
+Rnk = 350;
 % size(C_long)
 % [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C_long, GLR, rel_threshold, Rnk, SigRnk);
 % [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = RAP_PSIICOS_Fast(CT, GLR, RAPIts, Rnk);%, Upwr);
@@ -20,9 +21,9 @@ CurBand = [22, 26];
 bInducedOnly = true;
 TimeRange = [0.2, 0.8];
 real_data = 'Real_data.mat';
-% if exist(real_data, 'file')
-	% load(real_data)
-% else
+if exist(real_data, 'file')
+	load(real_data)
+else
 	Condition = 2;
 	trials = LoadTrials(AllSubjects{2}, num2str(Condition), CurBand, TimeRange);
 	HM = LoadHeadModel(AllSubjects{2}, num2str(Condition));
@@ -32,14 +33,15 @@ real_data = 'Real_data.mat';
 	% ERP = mean(trials.data, 3);
 
 
-% 	[ConData, G] = PrepRealData(AllSubjects{10}, CurBand, bInducedOnly, TimeRange);
-% 	R = ConData{Condition}.HM_LR.GridLoc;
+	[ConData, G] = PrepRealData(AllSubjects{10}, CurBand, bInducedOnly, TimeRange);
+	R = ConData{Condition}.HM_LR.GridLoc;
 	
-% 	% save(real_data, 'ConData', 'G', '-v7.3');
-% % end
+	% save(real_data, 'ConData', 'G', '-v7.3');
+end
 % % [INDrap, Cp, Upwr, Cs] = T_PSIICOS((ConData{Condition}.CrossSpecTime), G, rel_threshold, Rnk, SigRnk);
 [INDrap, Cp, Upwr, Cs] = T_PSIICOS((CT), G, rel_threshold, Rnk, SigRnk);
 
 con = Connections(AllSubjects{1}, INDrap, CurBand,...
-		                           TimeRange, CT, num2str(Condition));
+		                           TimeRange, CT, num2str(Condition), HM );
+% 'test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx
 con.PlotCon()

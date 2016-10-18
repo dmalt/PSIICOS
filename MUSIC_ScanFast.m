@@ -1,15 +1,24 @@
-function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
-% PSIICOS_ScanFast: perform scanning algorithm to find strongest connections
-%                   using projection from VC
+function [Cs, IND] = MUSIC_ScanFast(G2dU, Cp)
+% -------------------------------------------------------------------------
+% Perform scanning algorithm to find strongest connections using correlation
+% of cross-spectrum with the forward operator
+% -------------------------------------------------------------------------
 % FORMAT:
 %   [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp) 
 % INPUTS:
-%   G2dU       - {Nsensors x Nsources} matrix of forward model
-%   Cp         - {Nsensors x Time} matrix of cross-spectrum on sensors
+%   G2dU       - {n_sensors x n_sources} matrix of forward model
+%   Cp         - {n_sensors ^ 2 x n_times} or
+%                {n_sensors ^ 2 x n_components}
+%                matrix of timeseries or left singular vectors of
+%                cross-spectrum on sensors
 % OUTPUTS:
-%   Cs
-%   IND
-%   Cs0
+%   Cs         - {(n_sources ^ 2 - n_sources) / 2} matrix of 
+%                correlations between source topographies
+%                and forward operator
+%   IND        - {(n_sources ^ 2 - n_sources) / 2} matrix of
+%                indices to build a mapping between upper
+%                triangle and (i,j) matrix indexing 
+%                IND(l,:) --> [i,j]
 % ___________________________________________________________________________
 % Alex Ossadtchii, ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
@@ -39,7 +48,7 @@ function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
     cs2_12_21 = zeros(1, Nsrc);
     Cs0 =  zeros(1, Nsrc * (Nsrc - 1) / 2);
 
-    %below is the optimized implementation of this:
+    % below is the optimized implementation of this:
     % Look at each pair and estimate subspace correlation
     % between cross-spectrum and topography of this pair
     % tic
@@ -57,8 +66,8 @@ function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
     %     end;
     % end;
     % toc
-    % 
-    tic
+    %
+
     p = 1;
     ai = zeros(2, Nsns);
     for iSrc = 1:Nsrc
@@ -71,8 +80,8 @@ function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
             cs2long = cslong .* conj(cslong);
             cs2longd = cslong(1,:) .* conj(cslong(2,:));
             cs2_11_22 = [sum(reshape(cs2long(1,:), 2, Nsrc), 1);...
-                        sum(reshape(cs2long(2,:), 2, Nsrc), 1)];
-            cs2_12_21 = sum(reshape(cs2longd, 2, Nsrc), 1);
+                         sum(reshape(cs2long(2,:), 2, Nsrc), 1)];
+            cs2_12_21 =  sum(reshape(cs2longd, 2, Nsrc), 1);
             Ti = sum(cs2_11_22, 1);
             Di = prod(cs2_11_22, 1) - cs2_12_21 .* conj(cs2_12_21);
             T(iComp, p : p + Nsrc - 1 - iSrc) = Ti(iSrc + 1 : Nsrc);
@@ -82,10 +91,7 @@ function [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
         IND(p : p + Nsrc - iSrc - 1, 1) = iSrc;
         p = p + Nsrc - iSrc;
     end;
-    Cs = 0.5 * T + sqrt(0.25 * T .* (T) - D); 
+    Cs = 0.5 * T + sqrt(0.25 * T .* T - D); 
     % Cs = sum(Cs,1);  
     Cs = max(Cs,[],1);    
-    toc
-
-
-
+end
