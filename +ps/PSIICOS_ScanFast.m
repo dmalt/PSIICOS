@@ -1,4 +1,4 @@
-function [Cs, IND] = MUSIC_ScanFast(G2dU, Cp)
+function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp)
 % -------------------------------------------------------------------------
 % Perform scanning algorithm to find strongest connections using correlation
 % of cross-spectrum with the forward operator
