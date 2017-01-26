@@ -3,7 +3,7 @@ function CT = ProjFromCond(CT1, CT2, rnk)
 % Project cross-spectrum CT1 from CT2
 % -------------------------------------------------------
 % FORMAT:
-%   CT = ProjFromCond(CT1, CT2) 
+%   CT = ProjFromCond(CT1, CT2, rnk) 
 % INPUTS:
 %   CT1        - {N_sensors_reduced ^ 2 x Ntimes} cross-spectrum
 %                matrix for conditon 1
@@ -24,6 +24,6 @@ function CT = ProjFromCond(CT1, CT2, rnk)
 	if rnk <= size(u, 2)
 		CT = CT1 - u(:,1:rnk) * u(:,1:rnk)' * CT1;
 	else
-		error('InputError: ValueOutOfRange', 'rnk is bigger then size(CT2,1)');
+		error('InputError: ValueOutOfRange');
 	end
 end
