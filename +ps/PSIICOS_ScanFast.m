@@ -1,4 +1,4 @@
-function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp)
+function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
 % -------------------------------------------------------------------------
 % Perform scanning algorithm to find strongest connections using correlation
 % of cross-spectrum with the forward operator
@@ -21,6 +21,10 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp)
 %                IND(l,:) --> [i,j]
 % ___________________________________________________________________________
 % Alex Ossadtchii, ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
+
+    if nargin < 3
+        is_imag = false;
+    end
 
     [Nsns, Nsrc2] = size(G2dU);
     Nsrc = Nsrc2 / 2;
@@ -76,12 +80,15 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp)
             % --- Take iSrc-th location topographies ---- %
             ai = G2dU(:, iSrc * 2 - 1 : iSrc * 2)';       
             tmp = ai * Cp_sq;
-            cslong =  tmp * G2dU;
+            cslong = tmp * G2dU;
+            if is_imag
+                cslong = imag(cslong);
+            end
             cs2long = cslong .* conj(cslong);
             cs2longd = cslong(1,:) .* conj(cslong(2,:));
             cs2_11_22 = [sum(reshape(cs2long(1,:), 2, Nsrc), 1);...
                          sum(reshape(cs2long(2,:), 2, Nsrc), 1)];
-            cs2_12_21 =  sum(reshape(cs2longd, 2, Nsrc), 1);
+            cs2_12_21 = sum(reshape(cs2longd, 2, Nsrc), 1);
             Ti = sum(cs2_11_22, 1);
             Di = prod(cs2_11_22, 1) - cs2_12_21 .* conj(cs2_12_21);
             T(iComp, p : p + Nsrc - 1 - iSrc) = Ti(iSrc + 1 : Nsrc);
