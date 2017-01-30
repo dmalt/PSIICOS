@@ -1,7 +1,8 @@
 Band = [18,21];
 Fsamp = 500;
 range = 201:250;
-ConData
+ConData;
+
 % do band-pass filtering and create ConDataBand
 [bfir, afir] = fir1(128,Band/(Fsamp/2),'bandpass');
 

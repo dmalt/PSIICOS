@@ -39,8 +39,8 @@ for iSubj = 1:length(subjNames)
 
 	CT_m = ps.ProjectAwayFromPowerComplete(CT_m, HM.gain, pwrRnk);
 	CT_prf = ps.ProjectAwayFromPowerComplete(CT_prf, HM.gain, pwrRnk);
-
 	CT_final{iSubj} = ps.ProjFromCond(CT_m, CT_prf, 6);
+
 	% CT_final{iSubj} = CT_m; 
 
 	CT_final{iSubj} = ups.RestoreCTdim(CT_final{iSubj}, HM.UP);

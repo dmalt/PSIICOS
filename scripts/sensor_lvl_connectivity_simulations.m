@@ -1,6 +1,6 @@
-[HM, CT, Tr, Ctx] = GenerData(pi/2, 100); %, 0.01, 0.35, 0, true);
+[HM, CT, Tr, Ctx] = ups.SimulateData(pi/2, 100); %, 0.01, 0.35, 0, true);
 % CTp = ProjectAwayFromPowerComplete(CT, HM.gain);
-CT = RestoreCTdim(CT, HM.UP);
+CT = ups.RestoreCTdim(CT, HM.UP);
 
 % CohTS = Cp2Coh(CT);
 % ConInds = GetSensorConnectivity(imag(CohTS), 20);
@@ -12,11 +12,11 @@ CT = RestoreCTdim(CT, HM.UP);
 % 	TrRestored(:,:,iTr) = HM.UP' * squeeze(Tr(:,:,iTr));
 % end
 
-TrRestored = RestoreTrDim(Tr, HM.UP);
+TrRestored = ups.RestoreTrDim(Tr, HM.UP);
 
-PLV = wPLIMatrix(TrRestored, [9.5,10.5], 500);
-conInds = GetSensorConnectivity(PLV(:), 100);
-DrawConnectionsOnSensors(conInds);
+% PLV = ups.wPLIMatrix(TrRestored, [9.5,10.5], 500);
+% conInds = ups.GetSensorConnectivity(PLV(:), 100);
+ups.DrawConnectionsOnSensors(conInds, '/home/dmalt/Github/matlab/utils_psiicos/data/channel_vectorview306.mat');
 % CTp = RestoreCTdim(CTp, HM.UP);
 % conInds = GetSensorConnectivity(imag(CT), 0.3);
 % DrawConnectionsOnSensors(conInds);
