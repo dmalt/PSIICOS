@@ -1,4 +1,4 @@
-function [INDrap, Cpvec, Upwr, corr] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk, Upwr)
+function [INDrap, Cpvec, Upwr, corr, IND] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, SigRnk, Upwr)
 % --------------------------------------------------------------------------------------------------
 % Project from VC and do thresholding on correlations of sources with the cross-spectrum
 % --------------------------------------------------------------------------------------------------
@@ -94,7 +94,6 @@ function [INDrap, Cpvec, Upwr, corr] = T_PSIICOS(C, G2dU, rel_threshold, Rnk, Si
 
     % Look at the topography of a pair that is
     % most correlated with the cross-spectrum
-    size(Cp)
     [corr(1,:), IND] = PSIICOS_ScanFast(G2dU, Cp);
 
     % corr_min  = min(corr);
