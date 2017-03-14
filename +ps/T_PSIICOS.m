@@ -5,16 +5,19 @@ function [INDrap, Cpvec, Upwr, corr, IND] = T_PSIICOS(C, G2dU, rel_threshold, Rn
 % FORMAT:
 %   [INDrap, Cp, Upwr, corr] = T_PSIICOS(C, G2dU, corr_threshold, Rnk, SigRnk, Upwr) 
 % INPUTS:
-%   C        - {N_sensors_reduced x N_sensors_reduced} sensor-space cross-spectral matrix
-%   G2dU     - {N_sensors_reduced x N_sources} forward model matrix such that each source 
-%              is served by two columns of this matrix corresponding to the \
-%              topographies of dipoles in the tangential plane
-%   RAPIts   - scalar; number of iterations for the algorithm to perform
-%   Rnk      - scalar; rank of Volume Conduction subspace. The bigger this value
-%              is the more data will be removed by the projection from VC. On the
-%              contrary, the smaller it is the more VC-related activity will remain in the data.
-%   SigRnk   - scalar; number of components left after dimensionality reduction of signal space
-%              if SigRnk = 0, use sum of cross-spectrum across the time domain 
+%   C        - {N_sensors_reduced * N_sensors_reduced x n_Times} 
+%              sensor-space cross-spectral matrix
+%   G2dU     - {N_sensors_reduced x N_sources} forward model matrix 
+%              such that each source is served by two columns
+%              of this matrix corresponding to the topographies of dipoles
+%              in the tangential plane
+%   Rnk      - scalar; rank of signal leakage subspace. The bigger this value
+%              the more data will be removed by the projection from SL. On the
+%              contrary, the smaller it is the more SL-related activity will
+%              remain in the data. Recommended values are between 350 and 500
+%   SigRnk   - scalar; number of components left after dimensionality reduction
+%              of signal space
+%              if SigRnk = 0, use mean of cross-spectrum across the time domain 
 %   Upwr     - {N_sensors_reduced ^ 2 x Rnk} VC subspace basis matrix. 
 %              Columns of Upwr span the VC subspace
 % OUTPUTS:
@@ -56,10 +59,22 @@ function [INDrap, Cpvec, Upwr, corr, IND] = T_PSIICOS(C, G2dU, rel_threshold, Rn
     Nsrc = size(G2dU, 2) / 2; % two topography columns per each source of the grid
     % Nch = size(G2dU, 1);
     % perform projection of the coherence matrix away from the power only
+    n_sensors_C = sqrt(size(C,1));
+    n_sensors_G = size(G2dU,1);
+    assert(  n_sensors_C == fix(n_sensors_C),...
+            ['NONSQUARE NUMBER OF ROWS IN C: size(C) = ', num2str(size(C))] ); 
+
+    assert(n_sensors_C == n_sensors_G,...
+           ['INCONSISTENT NUMBER OF SENSORS IN C AND G2dU: ',...
+             num2str(n_sensors_C), ' vs ', num2str(n_sensors_G)]);
+
     if(isempty(Upwr))
-        % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, Rnk);
+        % [Cpvec, Upwr] = ProjectAwayFromPowerFixedOr(C(:), G2dU, k);
         [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, Rnk);
     else % use the existing matrix if profided
+        assert(n_sensors_C ^ 2 == size(Upwr,1),...
+               ['INCONSISTENT SIZES: size(C,1) = ',...
+                num2str(size(C,1)), ', size(Upwr,1) = ', num2str(size(Upwr,1))]);
         c = Upwr' * C;
         Cpvec  = C - Upwr * c;
     end;
