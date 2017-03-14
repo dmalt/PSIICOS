@@ -17,7 +17,7 @@ freqBand = [16, 25];
 isInducedOnly = true;
 timeRange = [0, 0.7];
 
-subjID = AllSubjects{4};
+subjID = AllSubjects{1};
 GainSVDTh = 0.01;
 real_data = 'Real_data.mat';
 protocolPath = '/home/dmalt/PSIICOS_osadtchii';

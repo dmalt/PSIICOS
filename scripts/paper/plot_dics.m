@@ -12,7 +12,7 @@ camlight(light_handle, 'left');
 subplot(3,3,2)
 light_handle = con_ps.Plot(opacity, linewidth, m_radius);
 camlight(light_handle, 'left');
-title('DICS PSIICOS');
+title('PSIICOS (MUSIC scan)');
 
 subplot(3,3,3)
 light_handle = con_ps.Plot(opacity, linewidth, m_radius);
@@ -28,7 +28,7 @@ camlight(light_handle, 'left');
 
 subplot(3,3,5)
 con_dics_gcs.Plot(opacity, linewidth, m_radius);
-title('DICS GCS');
+title('GCS + DICS beamformer');
 
 subplot(3,3,6)
 light_handle = con_dics_gcs.Plot(opacity, linewidth, m_radius);
@@ -43,7 +43,7 @@ camlight(light_handle, 'left');
 
 subplot(3,3,8)
 light_handle = con_dics.Plot(opacity, linewidth, m_radius);
-title('DICS');
+title('Imaginary cross-spectrum + DICS beamformer');
 
 subplot(3,3,9)
 light_handle = con_dics.Plot(opacity, linewidth, m_radius);

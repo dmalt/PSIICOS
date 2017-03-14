@@ -5,7 +5,7 @@ suffix = '_control_RH_raw_tsss_ica';
 
 condition = [subj_ID, suffix]; 
 freq_band = [10, 20];
-time_range = [-0.2, -0.2];
+time_range = [-0.7, -0.2];
 GainSVDTh = 0.01;
 isLR = true;
 lambda = 30;
