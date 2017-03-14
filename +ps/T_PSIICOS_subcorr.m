@@ -1,8 +1,8 @@
 % function [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, Rnk, Upwr)
-function [INDrap, Cp, Upwr, Cs] = T_PSIICOS(C, G2dU, Rnk, SigRnk, Upwr)
-% --------------------------------------------------------------------------------------------------
-% Project from VC and do thresholding on correlations of sources with the cross-spectrum
-% --------------------------------------------------------------------------------------------------
+function [INDrap, Cp, Upwr, Cs] = T_PSIICOS_subcorr(C, G2dU, Rnk, SigRnk, Upwr)
+% ---------------------------------------------------------------------------------------
+% Experimential version with proper subspace correlations.
+% ---------------------------------------------------------------------------------------
 % FORMAT:
 %   [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, RAPIts, Rnk, Upwr) 
 % INPUTS:
