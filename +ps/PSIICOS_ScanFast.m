@@ -85,5 +85,5 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     end;
     Cs = 0.5 * T + sqrt(0.25 * T .* T - D); 
     % Cs = sum(Cs, 1);  
-    Cs = max(Cs, [], 1);    
+    Cs = max(Cs, [], 1)';    
 end
