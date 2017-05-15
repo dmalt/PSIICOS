@@ -129,6 +129,7 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
         end
 
         if ~isempty(seed_ind)
+            % Add 1 as a placeholder for node coherence with itself
             seed_indices = corr.IND(:,1) == seed_ind | corr.IND(:,2) == seed_ind;
             corr.data = corr.data(seed_indices);
             corr.data = [corr.data(1:seed_ind); 1; corr.data(seed_ind + 1 : end)];
