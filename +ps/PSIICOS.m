@@ -1,12 +1,12 @@
 function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
-                                            sig_rnk, Upwr,...
-                                            seed_ind, cp_part,...
-                                            is_fast)
+                                       sig_rnk, Upwr,...
+                                       seed_ind, cp_part,...
+                                       is_fast)
 % ------------------------------------------------------------------------------------------
 % Project from VC and do thresholding on correlations of sources with the cross-spectrum
 % ------------------------------------------------------------------------------------------
 % FORMAT:
-%   [corr, IND, Cpvec, Upwr] = T_PSIICOS_subcorr(C, G2dU, SL_rnk, sig_rnk, Upwr, seed_ind, cp_part)
+%   [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk, sig_rnk, Upwr, seed_ind, cp_part, is_fast)
 % INPUTS:
 %   C        - {N_sensors_reduced * N_sensors_reduced x n_Times}
 %              sensor-space cross-spectral matrix
@@ -132,49 +132,74 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
             % Add 1 as a placeholder for node coherence with itself
             seed_indices = corr.IND(:,1) == seed_ind | corr.IND(:,2) == seed_ind;
             corr.data = corr.data(seed_indices);
-            corr.data = [corr.data(1:seed_ind); 1; corr.data(seed_ind + 1 : end)];
+            corr.data = [corr.data(1:seed_ind); 0; corr.data(seed_ind + 1 : end)];
             corr.IND = corr.IND(seed_indices,:);
-            corr.IND = [corr.IND(1:seed_ind); [seed_ind, seed_ind]; corr.IND(seed_ind + 1 : end, :)];
+            corr.IND = [corr.IND(1:seed_ind, :); [seed_ind, seed_ind]; corr.IND(seed_ind + 1 : end, :)];
         end
     else
-        [corr.data, corr.IND] = honest_corrs(G2dU, Cp, seed_ind, cp_part);
+        [corr.data, corr.IND] = honest_corrs(G2dU, Upwr, Cp, seed_ind, cp_part);
     end
 
 end
 
 
-function [Cs, IND] = honest_corrs(G2dU, Cp, seed_ind, cp_part)
+function [Cs, IND] = honest_corrs(G2dU, Upwr, Cp, seed_ind, cp_part)
 % -------------------------------------- %
 % Compute subspace correlations
 % -------------------------------------- %
-    import ps.subcorr
 
+    import ups.indUpperDiag2mat
     n_src = size(G2dU, 2) / 2; % two topography columns per each source of the grid
 
     if isempty(seed_ind)
         Cs = zeros((n_src ^ 2 - n_src) / 2, 1);
+        fprintf('Calculating all-to-all subspace correlations... \n');
+        fprintf('Source pair number (max %d): ', (n_src ^ 2 - n_src) / 2);
     else
         Cs = zeros(n_src, 1);
+        fprintf('Calculating seed-based subspace correlations... \n');
+        fprintf('Source number (max %d): ', n_src);
     end
 
     p = 1;
     for i_src = 1:n_src
         if isempty(seed_ind)
             for j_src = i_src + 1 : n_src
-                Cs(p) = get_ij_subcorr(G2du, Upwr, Cp, i_src, j_src, cp_part);
+                Cs(p) = get_ij_subcorr(G2dU, Upwr, Cp, i_src, j_src, cp_part);
+
+                if p > 1
+                     for j=0 : log10(p - 1)
+                         fprintf('\b');
+                     end
+                end
+                fprintf('%d', p);
+
                 p = p + 1;
-                disp(p)
             end
         else
             if i_src == seed_ind
-                Cs(i_src) = 1;
+                Cs(i_src) = 0;
             else
-                Cs(i_src) = get_ij_subcorr(G2du, Upwr, Cp, i_src, seed_ind, cp_part);
+                Cs(i_src) = get_ij_subcorr(G2dU, Upwr, Cp, i_src, seed_ind, cp_part);
             end
-            disp(i_src)
+
+            if i_src > 1
+                 for j=0 : log10(i_src - 1)
+                     fprintf('\b');
+                 end
+            end
+            fprintf('%d', i_src);
         end
     end
+    fprintf(' -> Done\n');
+
     IND = indUpperDiag2mat(n_src);
+    if ~isempty(seed_ind)
+        % 
+        seed_indices = IND(:,1) == seed_ind | IND(:,2) == seed_ind;
+        IND = IND(seed_indices, :);
+        IND = [IND(1:seed_ind, :); [seed_ind, seed_ind]; IND(seed_ind + 1 : end, :)];
+    end
 end
 
 
@@ -182,6 +207,8 @@ function cs = get_ij_subcorr(G2dU, Upwr, Cp, i_src, j_src, cp_part)
 % --------------------------------------------------------------- %
 % Get subspace correlation for [i_src, j_src] network
 % --------------------------------------------------------------- %
+    import ps.subcorr
+
     assert(i_src ~= j_src,...
           ['ERROR: get_ij_subcorr: i_src = j_src for i_src = ', num2str(i_src),...
           'j_src = ', num2str(j_src)])
