@@ -1,11 +1,11 @@
-function [INDrap, IND, Cp, Upwr, Cs] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
+function [Cs, IND, Cp, Upwr] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
                                                          sig_rnk, Upwr,...
                                                          seed_ind, cp_part)
 % ---------------------------------------------------------------------------------------
 % Experimential version with proper subspace correlations.
 % ---------------------------------------------------------------------------------------
 % FORMAT:
-%   [indep_topo, c_ss_hat, PVU, SubC, INDrap, Cp, Upwr] = T_PSIICOS(C, G2dU, RAPIts, SL_rnk, Upwr) 
+%   [Cs, IND, Cp, Upwr] = T_PSIICOS(C, G2dU, SL_rnk, Upwr, seed_ind, cp_part) 
 % INPUTS:
 %   C        - {N_sensors_reduced x N_sensors_reduced} sensor-space cross-spectral matrix
 %              sensor-space cross-spectral matrix
@@ -108,17 +108,16 @@ function [INDrap, IND, Cp, Upwr, Cs] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
                 p = p + 1;
             end
         else
-            ai = G2dU(:,iSrc * 2 - 1 : iSrc * 2);
+            ai = G2dU(:, iSrc * 2 - 1 : iSrc * 2);
             Gij = kron(ai,aj);
             Gji = kron(aj,ai);
-            % G = Gij + Gji;
+
             if strcmp(cp_part,'real')
                 G_re = Gij + Gji;
                 G_re = G_re - Upwr * Upwr' * G_re;
                 subc = subcorr(G_re, real(Cp));
             elseif strcmp(cp_part, 'imag')
                 G_im = Gij - Gji;
-                G_im = G_im - Upwr * Upwr' * G_im;
                 if(seed_ind == iSrc)
                     subc = rand;
                 else
@@ -129,7 +128,6 @@ function [INDrap, IND, Cp, Upwr, Cs] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
                 G_re = G_re - Upwr * Upwr' * G_re;
                 subc_re = subcorr(G_re, real(Cp));
                 G_im = Gij - Gji;
-                % G_im = G_im - Upwr * Upwr' * G_im;
                 if(seed_ind == iSrc)
                     subc_im = rand;
                 else
@@ -147,5 +145,4 @@ function [INDrap, IND, Cp, Upwr, Cs] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
     end
 
     IND = indUpperDiag2mat(Nsrc);
-    % [val_max ind_max] = max(Cs(rap,:));
 end
