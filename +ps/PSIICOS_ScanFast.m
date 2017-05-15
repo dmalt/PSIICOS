@@ -12,10 +12,10 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
 %                matrix of timeseries or left singular vectors of
 %                cross-spectrum on sensors
 % OUTPUTS:
-%   Cs         - {(n_sources ^ 2 - n_sources) / 2} matrix of 
+%   Cs         - {(n_sources ^ 2 - n_sources) / 2 x 1} vector of 
 %                correlations between source topographies
 %                and forward operator
-%   IND        - {(n_sources ^ 2 - n_sources) / 2} matrix of
+%   IND        - {(n_sources ^ 2 - n_sources) / 2 x 2} matrix of
 %                indices to build a mapping between upper
 %                triangle and (i,j) matrix indexing 
 %                IND(l,:) --> [i,j]
@@ -29,7 +29,7 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     [Nsns, Nsrc2] = size(G2dU);
     Nsrc = Nsrc2 / 2;
 
-    % if(size(Cp,1)~=Nsns)
+    % if(size(Cp,1)~= Nsns)
     %     disp('Incomptible dimensions G2dU vs Cp');
     %     return;
     % end
@@ -37,20 +37,6 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     n_comp = size(Cp, 2);
     T = zeros(n_comp, Nsrc * (Nsrc - 1) / 2);
     D = zeros(n_comp, Nsrc * (Nsrc - 1) / 2);
-    Ti = zeros(1, Nsrc);
-    Di = zeros(1, Nsrc);
-    IND = zeros(Nsrc * (Nsrc - 1) / 2, 2);
-    cs2 = zeros(2, 2);
-    cs = zeros(2, 2);
-    tmp = zeros(2, Nsrc * 2);
-    ai = zeros(2, Nsns);
-    aj = zeros(Nsns, 2);
-    cslong = zeros(2, Nsrc * 2);
-    cs2long = zeros(2, Nsrc * 2);
-    cs2longd = zeros(1, Nsrc * 2);
-    cs2_11_22 = zeros(2, Nsrc);
-    cs2_12_21 = zeros(1, Nsrc);
-    Cs0 =  zeros(1, Nsrc * (Nsrc - 1) / 2);
 
     % below is the optimized implementation of this:
     % Look at each pair and estimate subspace correlation
@@ -73,7 +59,6 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     %
 
     p = 1;
-    ai = zeros(2, Nsns);
     for iSrc = 1:Nsrc
         for iComp = 1:n_comp
             Cp_sq = reshape(Cp(:,iComp), Nsns, Nsns);
@@ -99,6 +84,6 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
         p = p + Nsrc - iSrc;
     end;
     Cs = 0.5 * T + sqrt(0.25 * T .* T - D); 
-    % Cs = sum(Cs,1);  
-    Cs = max(Cs,[],1);    
+    % Cs = sum(Cs, 1);  
+    Cs = max(Cs, [], 1);    
 end
