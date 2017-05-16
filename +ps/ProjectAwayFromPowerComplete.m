@@ -43,7 +43,7 @@ function [CTp, Upwr, ds] = ProjectAwayFromPowerComplete(CT, G2dU, PwrRnk)
     fprintf('Finding eigen space...\n');
     % AA = A * A';
     % [u s] = eigs(AA, PwrRnk);
-    [u s] = svd(A, 'econ');
+    [u, s] = svd(A, 'econ');
     ds = diag(s);
     Upwr = u(:, 1:PwrRnk);
 

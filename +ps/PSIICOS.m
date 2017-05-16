@@ -220,8 +220,7 @@ function cs = get_ij_subcorr(G2dU, Upwr, Cp, i_src, j_src, cp_part)
 
     if strcmp(cp_part,'real')
         G_re = Gij + Gji;
-        temp = Upwr' * G_re;
-        G_re = G_re - Upwr * temp;
+        G_re = G_re - Upwr * (Upwr' * G_re);
         subc = subcorr(G_re, real(Cp));
     elseif strcmp(cp_part, 'imag')
         G_im = Gij - Gji;
