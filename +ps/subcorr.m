@@ -1,4 +1,4 @@
-function [Co,X,Y,Uc,Vc] = subcorr(A,B,NOSVD,Sa,Va,Sb,Vb);
+function [Co,X,Y,Uc,Vc] = subcorr(A,B,NOSVD,Sa,Va,Sb,Vb)
 %SUBCORR Calculate the subspace correlation between two matrices
 % function Co = subcorr(A,B);
 %  or
@@ -62,7 +62,7 @@ function [Co,X,Y,Uc,Vc] = subcorr(A,B,NOSVD,Sa,Va,Sb,Vb);
 [mB,q] = size(B);
 if(mA~=mB),error('A and B must have same number of rows'),end
 
-if(exist('Sa') == 1),		% user provided decompositions
+if(exist('Sa', 'var') == 1),		% user provided decompositions
   if(min(size(Sa)) > 1),	% user gave diagonal matrix
     Sa = diag(Sa);
   end
@@ -72,7 +72,7 @@ if(exist('Sa') == 1),		% user provided decompositions
   end
 end
 
-if(exist('NOSVD') ~= 1),	% user gave nothing
+if(exist('NOSVD', 'var') ~= 1),	% user gave nothing
   NOSVD = [];			% make empty
   NOSVD_FLAG = 0; 		% default, calculate SVD of A and B
 end
@@ -170,10 +170,8 @@ else 				% user has already calculated the SVDs
 end
 
 % bogus condition, probably a null matrix given
-if(rA == 0 | rB == 0), 		% one of these has no rank
+if(rA == 0 || rB == 0), 		% one of these has no rank
   Co = NaN; 			% not defined
-  u = NaN + zeros(mA,p);
-  v = NaN + zeros(mB,q);
   return
 end
 
@@ -188,7 +186,7 @@ if(nargout < 2)  % want only angles
   return
 else % nargout is 2 or more
   [Uc,Co,Vc] = svd(C);
-  if(min(size(Co))==1),Co = Co(1);else,Co = diag(Co);end
+  if(min(size(Co))==1),Co = Co(1);else Co = diag(Co);end
   too_big = find(Co > 1);	% numerical error
   Co(too_big) = ones(length(too_big),1);
   too_small = find(Co < 0);	% numerical error
