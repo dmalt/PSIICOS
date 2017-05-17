@@ -30,7 +30,7 @@ Wmat = map_on_default(Ctx_src, Ctx_dst);
 % ---------------------------------------------------------- %
 
 % ------ set seed location on avg brain -------- %
-l_M1_dst_xyz = [0.008, 0.0371, 0.1013];
+l_M1_dst_xyz = [-0.002, 0.0351, 0.1003];
 seed_dst_xyz_approx = l_M1_dst_xyz;
 seed_dst_ind = ups.FindXYZonGrid(seed_dst_xyz_approx, Ctx_dst.Vertices);
 seed_dst_xyz = Ctx_dst.Vertices(seed_dst_ind,:);
@@ -67,7 +67,7 @@ CS_dst = (CS_post_dst.data - CS_pre_dst.data) ./ CS_pre_dst.data;
 
 figure;
 h = plot_brain_cmap_hemisplit(CtxHHR_dst, Ctx_dst, [], CS_dst,...
-                              zeros(size(CS_dst)), 0, seed_dst_xyz);
+                              zeros(size(CS_dst)), 0, seed_dst_xyz_approx);
 % CT_proj_from_vc = ps.ProjectAwayFromPowerFixedOr(CT_resh(:), HM.gain, pwr_rnk);
 % [CS, IND] = ps.PSIICOS_ScanFast(HM.gain, (CT_proj_from_vc));
 
