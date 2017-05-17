@@ -5,7 +5,7 @@ function [Cs, IND, Cp, Upwr] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
 % Experimential version with proper subspace correlations.
 % ---------------------------------------------------------------------------------------
 % FORMAT:
-%   [Cs, IND, Cp, Upwr] = T_PSIICOS(C, G2dU, SL_rnk, Upwr, seed_ind, cp_part) 
+%   [Cs, IND, Cp, Upwr] = T_PSIICOS_subcorr(C, G2dU, SL_rnk, Upwr, seed_ind, cp_part) 
 % INPUTS:
 %   C        - {N_sensors_reduced x N_sensors_reduced} sensor-space cross-spectral matrix
 %              sensor-space cross-spectral matrix
@@ -80,7 +80,7 @@ function [Cs, IND, Cp, Upwr] = T_PSIICOS_subcorr(C, G2dU, SL_rnk,...
         return;
     end
     %% normalize forward matrix
-     
+
      for i = 1:Nsrc
          range_i = i * 2 - 1 : i *  2;
          G2dU(:, range_i(1)) = G2dU(:, range_i(1)) / norm(G2dU(:, range_i(1)));
