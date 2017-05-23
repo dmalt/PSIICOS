@@ -37,6 +37,7 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     n_comp = size(Cp, 2);
     T = zeros(n_comp, Nsrc * (Nsrc - 1) / 2);
     D = zeros(n_comp, Nsrc * (Nsrc - 1) / 2);
+    IND = zeros(Nsrc * (Nsrc - 1) / 2, 2);
 
     % below is the optimized implementation of this:
     % Look at each pair and estimate subspace correlation
