@@ -2,33 +2,40 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
                                        sig_rnk, Upwr,...
                                        seed_ind, cp_part,...
                                        is_fast)
-% ------------------------------------------------------------------------------------------
-% Project from VC and do thresholding on correlations of sources with the cross-spectrum
-% ------------------------------------------------------------------------------------------
+% ------------------------------------------------------------
+% Project from VC and do thresholding on correlations of
+% sources with the cross-spectrum
+% ------------------------------------------------------------
 % FORMAT:
-%   [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk, sig_rnk, Upwr, seed_ind, cp_part, is_fast)
+%   [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk, sig_rnk,...
+%                                 Upwr, seed_ind, cp_part, is_fast)
 % INPUTS:
 %   C        - {N_sensors_reduced * N_sensors_reduced x n_Times}
 %              sensor-space cross-spectral matrix
-%   G2dU     - {N_sensors_reduced x N_sources} forward model matrix 
+%   G2dU     - {N_sensors_reduced x N_sources} forward model matrix
 %              such that each source is served by two columns
-%              of this matrix corresponding to the topographies of dipoles
-%              in the tangential plane
-%   SL_rnk      - scalar; rank of signal leakage subspace. The bigger this value
-%              the more data will be removed by the projection from SL. On the
-%              contrary, the smaller it is the more SL-related activity will
-%              remain in the data. Recommended values are between 350 and 500
-%   sig_rnk  - scalar; number of components left after dimensionality reduction
-%              of signal subspace
-%              if sig_rnk = 0, use mean of cross-spectrum across the time domain 
-%   Upwr     - {N_sensors_reduced ^ 2 x SL_rnk} SL subspace basis matrix. 
+%              of this matrix corresponding to the topographies
+%              of dipoles in the tangential plane
+%   SL_rnk   - scalar; rank of signal leakage subspace.
+%              The bigger this value the more data will be
+%              removed by the projection from SL. On the
+%              contrary, the smaller it is the more SL-related
+%              activity will remain in the data.
+%              Recommended values are between 350 and 500
+%   sig_rnk  - scalar; number of components left after
+%              dimensionality reduction of signal subspace
+%              if sig_rnk = 0, use mean of cross-spectrum
+%              across the time domain 
+%   Upwr     - {N_sensors_reduced ^ 2 x SL_rnk} 
+%              SL subspace basis matrix. 
 %              Columns of Upwr span the VC subspace
 %   seed_ind - 
 %   cp_part  - 
 %   is_fast  - 
 % OUTPUTS:
-%   corr.data  - {1 x Nsrc * (Nsrc - 1) / 2} vector of correlation between
-%                topographies and signal subspace
+%   corr.data  - {1 x Nsrc * (Nsrc - 1) / 2} vector of
+%                correlations between topographies and
+%                signal subspace
 %   corr.IND   -
 %   Cpvec      - projected away from the VC subspace sensor space cross-spectral
 %                matrix
