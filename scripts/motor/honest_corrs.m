@@ -20,10 +20,10 @@ Upwr = [];
 % ------------------------ %
 
 % ------------- load individual and avg brain surfaces -------------------- %
-[Ctx_dst, CtxHR_dst, CtxHHR_dst] = ups.GetCtx('@default_subject', protocol_path);
+[Ctx_dst, CtxHR_dst, CtxHHR_dst] = ups.bst.GetCtx('@default_subject', protocol_path);
 n_src_dst = length(Ctx_dst.Vertices);
 
-[Ctx_src, CtxHR_src, CtxHHR_src] = ups.GetCtx(subj_ID, protocol_path);
+[Ctx_src, CtxHR_src, CtxHHR_src] = ups.bst.GetCtx(subj_ID, protocol_path);
 n_src_src = length(Ctx_src.Vertices);
 
 Wmat = map_on_default(Ctx_src, Ctx_dst);
@@ -43,7 +43,7 @@ seed_src_xyz = Ctx_src.Vertices(seed_src_ind,:);
 threshold = 100;
 
 
-HM = ups.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh);
+HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh);
 
 [tr_pre, ~, Ps_pre_dst, CS_pre_dst] = prepare_cond(subj_ID, condition, protocol_path,...
                                               HM, freq_band,...
@@ -62,6 +62,6 @@ CS_dst = (CS_post_dst.data - CS_pre_dst.data) ./ CS_pre_dst.data;
 % CS_dst = (CS_post_dst - CS_pre_dst) ./ CS_pre_dst;
 
 figure;
-h = plot_brain_cmap_hemisplit(CtxHHR_dst, Ctx_dst, [], CS_dst,...
+h = plot_brain_cmap_hemisplit(CtxHHR_dst, Ctx_dst, [], CS_post_dst.data - CS_pre_dst.data ,...
                               zeros(size(CS_dst)), 0, seed_dst_xyz_approx);
 

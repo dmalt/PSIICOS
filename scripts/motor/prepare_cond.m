@@ -6,13 +6,13 @@ function [tr, CT, Ps, corr, Upwr, Wmat] = prepare_cond(subj_ID, condition, proto
 % Get data for prestim or poststim condition for honest_corrs script
 % -------------------------------------------------------------------------------- %
 
-    import ups.LoadTrials
-    import ups.CrossSpectralTimeseries
-    import ups.DICS
+    import ups.bst.LoadTrials
+    import ups.conn.CrossSpectralTimeseries
+    import ups.conn.DICS
     import ps.PSIICOS
 
 
-    trials = ups.LoadTrials(subj_ID, condition,...
+    trials = LoadTrials(subj_ID, condition,...
                             freq_band, time_range,...
                             HM, protocol_path);
 

@@ -1,5 +1,5 @@
 function adj_mat = get_adjacency_matrix(Ctx)
-% ------------------------------------------ 
+% ------------------------------------------
 % Get adjacency matrix for cortex surface
 % ------------------------------------------
     verts = Ctx.Vertices;
