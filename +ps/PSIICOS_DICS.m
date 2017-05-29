@@ -14,7 +14,7 @@ function [Cs, IND, Upwr] = PSIICOS_DICS(C, G, lambda, rnk, Upwr)
 % ________________________________________
 % Dmitrii Altukhov, dm.altukhov@ya.ru
     import ps.PSIICOS_ScanFast
-    import ups.DICS
+    import ups.conn.DICS
     import ps.ProjectAwayFromPowerComplete
 
     if nargin < 5
