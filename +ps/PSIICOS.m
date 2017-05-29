@@ -202,10 +202,9 @@ function [Cs, IND] = honest_corrs(G2dU, Upwr, Cp, seed_ind, cp_part)
 
     IND = indUpperDiag2mat(n_src);
     if ~isempty(seed_ind)
-        % 
         seed_indices = IND(:,1) == seed_ind | IND(:,2) == seed_ind;
         IND = IND(seed_indices, :);
-        IND = [IND(1:seed_ind, :); [seed_ind, seed_ind]; IND(seed_ind + 1 : end, :)];
+        IND = [IND(1:seed_ind-1, :); [seed_ind, seed_ind]; IND(seed_ind:end, :)];
     end
 end
 
