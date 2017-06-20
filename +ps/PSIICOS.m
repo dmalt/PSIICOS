@@ -91,14 +91,15 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
     % -------------------------------------------------------------- %
 
     % -- project coherence matrix from signal-leakage subspace -- %
-    if(isempty(Upwr))
+    if isempty(Upwr) && SL_rnk
         [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, SL_rnk);
-    else % use the existing matrix if profided
+    elseif SL_rnk % use the existing matrix if profided
         assert(n_sensors_C ^ 2 == size(Upwr,1),...
                ['INCONSISTENT SIZES: size(C,1) = ',...
                 num2str(size(C,1)), ', size(Upwr,1) = ', num2str(size(Upwr,1))]);
-        c = Upwr' * C;
-        Cpvec  = C - Upwr * c;
+        Cpvec = C - Upwr * (Upwr' * C);
+    elseif ~SL_rnk
+        Cpvec = C;
     end;
     % ------------------------------------------------------------ %
 
