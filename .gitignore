@@ -3,11 +3,7 @@ psiicos.sublime-workspace
 10SubjData.mat
 ConDataBand.mat
 *.mat
-
-*~
 *.zip
-something
 ConData_theta_CT.mat_bckp
-test_*
 *.sublime-workspace
 *.png
