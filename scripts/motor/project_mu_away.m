@@ -17,12 +17,10 @@ GainSVDTh = 0.001;
 isLR = true;
 % ----------------------------------------- %
 
-lambda = 1;
-
 % ---- setup psiicos ----- %
 SL_rnk = 500;
 sig_rnk = 20;
-cp_part = 'real';
+cp_part = 'imag';
 is_fast = false;
 Upwr = [];
 % ------------------------ %
@@ -62,7 +60,7 @@ seed_dst_xyz_approx = l_M1_dst_xyz;
 seed_dst_ind = ups.FindXYZonGrid(seed_dst_xyz_approx, Ctx_dst.Vertices);
 seed_dst_xyz = Ctx_dst.Vertices(seed_dst_ind,:);
 seed_dst_indicator = zeros(n_src_dst, 1);
-seed_dst_indicator(seed_dst_ind) = 1;
+
 [~, seed_src_ind]= max(Wmat' * seed_dst_indicator);
 seed_src_xyz = Ctx_src.Vertices(seed_src_ind,:);
 % ---------------------------------------------- %
@@ -71,24 +69,27 @@ threshold = 100;
 
 
 trials_post = ups.bst.LoadTrials(subj_ID, condition,...
-                        freq_band, time_range_post,...
-                        HM, protocol_path);
+                                 freq_band, time_range_post,...
+                                 HM, protocol_path);
 tr_post = trials_post.data;
 
 
 tr_post_proj = zeros(size(tr_post));
 for i_tr = 1:size(tr_post, 3)
     tr_post_proj(:,:,i_tr) = tr_post(:,:,i_tr)...
-                           - G_proj * (G_proj' * tr_post(:,:,i_tr));
+                           - G_proj * (pinv(G_proj) * tr_post(:,:,i_tr));
 end
 
 CT_proj = ups.conn.CrossSpectralTimeseries(tr_post_proj, true);
+% CT_proj = ups.conn.CrossSpectralTimeseries(tr_post, true);
 
 
 [corr, CT_nosl, Upwr] = ps.PSIICOS(CT_proj, HM.gain, SL_rnk,...
-                              sig_rnk, Upwr, seed_src_ind,...
-                              cp_part, is_fast);
+                                   sig_rnk, Upwr, seed_src_ind,...
+                                   cp_part, is_fast);
+
+corr_dst = Wmat * corr.data;
 
 figure;
-h = plot_brain_cmap_hemisplit(Ctx_infl, Ctx_dst, [], corr.data,...
-                              zeros(size(corr.data)), 0.1, seed_dst_xyz_approx);
+h = plot_brain_cmap_hemisplit(Ctx_infl, Ctx_dst, [], corr_dst,...
+                              zeros(size(corr_dst)), 0.1, seed_dst_xyz_approx);
