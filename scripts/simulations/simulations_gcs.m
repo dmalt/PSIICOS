@@ -32,13 +32,13 @@ threshold_gcs = 300;
 
 CT_reshape = reshape(mean(CT, 2), sqrt(size(CT,1)), sqrt(size(CT,1)));
 
-[Cs_ps, ~]   = ups.PSIICOS_DICS(mean(CT,2), HM.gain, lambda, SL_rnk);
+[Cs_ps, ~] = ps.PSIICOS_DICS(mean(CT,2), HM.gain, lambda, SL_rnk);
 
 % ------------------- perform computations -------------------- %
 [corr, Cp, Upwr]   = ps.PSIICOS(CT, HM.gain, SL_rnk, sig_rnk, Upwr,...
                                   seed_ind, cp_part, is_fast);
-[Cs_gcs, ~] = ups.GCS_DICS(CT_reshape, HM.gain, lambda);
-[A, Ps, Cs_dics, IND] = ups.DICS(CT_reshape, HM.gain, lambda, true);
+[Cs_gcs, ~] = ups.conn.GCS_DICS(CT_reshape, HM.gain, lambda);
+[A, Ps, Cs_dics, IND] = ups.conn.DICS(CT_reshape, HM.gain, lambda, true);
 % ------------------------------------------------------------- %
 
 IND_dics_gcs = ups.threshold_connections(Cs_gcs, threshold_gcs, IND);
@@ -47,12 +47,12 @@ ij_ps  = ups.threshold_connections(corr.data, threshold_ps, corr.IND);
 
 
 
-con_ps       = ups.Connections(ij_ps, HM, Ctx);
+con_ps = ups.Connections(ij_ps, HM, Ctx);
 con_dics_gcs = ups.Connections(IND_dics_gcs, HM, Ctx);
 con_dics = ups.Connections(IND_dics_ps, HM, Ctx);
 
-con_ps = con_ps.Clusterize(10, 0.02);
-con_dics_gcs = con_dics_gcs.Clusterize(10, 0.02);
-con_dics = con_dics.Clusterize(10, 0.02);
+% con_ps = con_ps.Clusterize(10, 0.02);
+% con_dics_gcs = con_dics_gcs.Clusterize(10, 0.02);
+% con_dics = con_dics.Clusterize(10, 0.02);
 
-plot_dics;
+% plot_dics;

@@ -16,7 +16,7 @@ sig_rnk = 20;
 cp_part = 'full';
 is_fast = false;
 Upwr = [];
-n_rap = 5;
+n_rap = 4;
 % ------------------------ %
 
 
@@ -32,6 +32,7 @@ Wmat = map_on_default(Ctx_src, Ctx_dst);
 
 % ------ set seed location on avg brain -------- %
 l_M1_dst_xyz = [-0.002, 0.0351, 0.1003];
+% l_M1_dst_xyz = [-0.02, 0.0551, 0.8003];
 seed_dst_xyz_approx = l_M1_dst_xyz;
 seed_dst_ind = ups.FindXYZonGrid(seed_dst_xyz_approx, Ctx_dst.Vertices);
 seed_dst_xyz = Ctx_dst.Vertices(seed_dst_ind,:);
@@ -61,9 +62,9 @@ CT_post = ups.conn.CrossSpectralTimeseries(tr_post, true);
 %                       sig_rnk, Upwr, seed_src_ind,...
 %                       cp_part, is_fast, n_rap);
 
-CT_post = ps.ProjFromCond(CT_post, CT_pre, 9);
+CT_post_proj = ps.ProjFromCond(CT_post, CT_pre, 9);
 
-corr_post = ps.RAP_PSIICOS(CT_post, HM.gain, SL_rnk,...
+corr_post = ps.RAP_PSIICOS(CT_post_proj, HM.gain, SL_rnk,...
                       sig_rnk, Upwr, seed_src_ind,...
                       cp_part, is_fast, n_rap);
 
@@ -75,4 +76,4 @@ corr_post = ps.RAP_PSIICOS(CT_post, HM.gain, SL_rnk,...
 
 figure;
 h = plot_brain_cmap_hemisplit(CtxHHR_dst, Ctx_dst, [], Wmat * corr_post{1}.data,...
-                              zeros(size(corr{1})), 0.1, seed_dst_xyz);
+                              zeros(2004, 1), 0.1, seed_dst_xyz);
