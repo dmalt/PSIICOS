@@ -11,10 +11,11 @@ condition = 'raw';
 % head model
 isLR = false;
 GainSVDTh = 0.0001; % results in 45 components
+ch_type = 'MEG';
 
 
 % load head model
-HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh);
+HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh, ch_type);
 
 
 
