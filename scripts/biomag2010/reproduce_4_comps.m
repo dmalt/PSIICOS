@@ -14,15 +14,17 @@ proj    = memoize(@ps.ProjectAwayFromPowerComplete);
 msvd    = memoize(@svd);
 
 tr_filt= ltr(data_path, time_range, freq_band, HM);
-CT = calc_CT(tr_filt, true);
+CT = calc_CT(tr_filt(:,:,1:5), true);
+% CT = ups.GetFakeCT(size(HM.gain,1), 1200);
 
-
-CT_proj = proj(CT, HM.gain, pwr_rnk);
-
-[u,s,v] = msvd(imag(CT_proj));
+% profile on;
+pwr_rnk = 150;
+CT_proj = proj(CT, HM.gain, pwr_rnk); 
+[u,s,v] = msvd(real(CT_proj));
 % [u,s,v] = msvd(imag(CT_proj));
-
-for i_comp = 1:4
+[u,s,v] = msvd(imag(CT));
+clear con_inds;
+for i_comp = 1:1
     [CS, IND] = ps.PSIICOS_ScanFast(HM.gain, u(:,i_comp));
     con_inds{i_comp} = ups.threshold_connections(CS, threshold, IND);
 end
