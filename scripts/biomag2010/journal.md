@@ -3,7 +3,7 @@ Sun Nov  5 19:32:19 MSK 2017
 
 I've reproduced Alex's results with components.
 Two problem appeared.
-1) I've ran the analyses for the real part of cross-spectrum
+1) I've ran analyses for the real part of cross-spectrum
    but the phase visualization showed that phase lag for the second
    component is very close to pi/2. Then I checked the code for phase computation
    and it appeared that I was projecting only on the first dipole of each node of a
@@ -11,10 +11,15 @@ Two problem appeared.
 
    This strange phase computation was being done with the projected CT.
    When I run it with the unprojected CT, phases seem normal.
+
 2) The pictures I get with the real part are very nice but they don't get worse
    when I reduce the number of trials. For instance I've ran calculations with only 
    5 trials and got beautiful cross-lateral networks, very similar to what I've seen
    for the complete set of trials.
+
+   Below is the result for beta range (16-24 Hz) and (0,1) seconds time interval:
+
+### ![image](./pics/beta_poststim_brain.png)
 
 Thu Nov  9 19:08:19 MSK 2017
 ============================
@@ -36,11 +41,44 @@ took 30 most strong connections which I put into Connections container.
 Then I averaged them whithin each bootstrap iteration and plotted the result.
 
 Here's what I got:
-![image](./pics/bootstrap_LR_all_tr.png)
-
+### ![image](./pics/bootstrap_LR_all_tr.png)
 
 Then I reduced the number of trials to 30:
-![image](./pics/bootstrap_LR_30_tr.png)
+### ![image](./pics/bootstrap_LR_30_tr.png)
 
 And then to 3:
-![image](./pics/bootstrap_LR_3_tr.png)
+### ![image](./pics/bootstrap_LR_3_tr.png)
+
+Sun Nov 12 14:08:00 MSK 2017
+============================
+Today's report is covering work done on Fri Nov 10 MSK 2017.
+
+The first thing...
+---------------
+I did was running the analysis for the other components in
+beta frequency band with the same parameters as I had in report on Nov 9.
+
+### Results for the *second* component:
+#### 1) All trials
+![image](./pics/bootstrap_LR_all_tr_comp2.png)
+#### 2) 30 trials
+![image](./pics/bootstrap_LR_30_tr_comp2.png)
+#### 2) 3 trials
+![image](./pics/bootstrap_LR_3_tr_comp2.png)
+### For the *third* componet:
+#### 1) All trials
+![image](./pics/bootstrap_LR_all_tr_comp3.png)
+#### 2) 30 trials
+![image](./pics/bootstrap_LR_30_tr_comp3.png)
+
+Then...
+----
+I wanted to see bootstrap analyses results in alpha frequency.
+Alpha range was taken to be standard (8,12) Hz frequency band.
+Other calculation parameters stayed the same. 
+I didn't reduce the number of trials this time.
+
+### Here's what I got for the first component:
+![image](./pics/bootstrap_LR_all_tr_comp1_alpha.png)
+### And the second component:
+![image](./pics/bootstrap_LR_all_tr_comp2_alpha.png)
