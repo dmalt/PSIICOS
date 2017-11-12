@@ -2,7 +2,7 @@
 % -------- setup  constants ------- %
 % paths
 home = getenv('HOME');
-bst_path = [home,'/bst/brainstorm_db'];
+bst_path = [home,'/Documents/MATLAB/bst/brainstorm_db'];
 data_path = [home, '/Data/mentrot/MentalRotationDeLange/preprocessed'];
 subj_ID = 'biomag2010';
 protocol_path = [bst_path,'/mentrot'];
