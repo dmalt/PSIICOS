@@ -7,3 +7,5 @@ ConDataBand.mat
 ConData_theta_CT.mat_bckp
 *.sublime-workspace
 *.png
+*.log
+*.aux
