@@ -10,7 +10,8 @@ condition = 'raw';
 
 % head model
 isLR = false;
-GainSVDTh = 0.0001; % results in 45 components
+% isLR = false;
+GainSVDTh = 0.001; % results in 45 components
 ch_type = 'MEG';
 
 
@@ -34,7 +35,7 @@ HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh, c
 % % plot_brain_cmap(CtxHHR, Ctx, [], Ps, zeros(size(Ps)), 0.2);
 
 pwr_rnk = 150;
-threshold = 100;
+threshold = 30;
 % CT_proj_from_vc = ps.ProjectAwayFromPowerFixedOr(CT_resh(:), HM.gain, pwr_rnk);
 % [CS, IND] = ps.PSIICOS_ScanFast(HM.gain, real(CT_proj_from_vc));
 % con_inds = ups.threshold_connections(CS, threshold, IND);
