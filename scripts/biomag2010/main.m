@@ -1,3 +1,6 @@
+% Preparation steps for analyses
+% AUTHOR: dmalt
+% ------------------------------ %
 
 % -------- setup  constants ------- %
 % paths
