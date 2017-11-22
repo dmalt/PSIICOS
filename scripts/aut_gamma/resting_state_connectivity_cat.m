@@ -41,6 +41,6 @@ CP_time_av = ProjectAwayFromPowerComplete(CP_time_av, G_tang_pca, pwr_rnk);
 pairs = get_ij_above_threshold(Cs, 0.3, IND);
 
 % iWindow = 110
-con = Connections('K0021', pairs(1:20:end,:), freqBand, [1, window_size], CP_time_av, 'condition', HM, CtxHR );
+con = Bundles(pairs(1:20:end,:), HM, CtxHR );
 con_clust = con.Clusterize(10, 0.02);
 con_av = con_clust.Average();

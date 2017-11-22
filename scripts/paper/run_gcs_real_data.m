@@ -49,8 +49,8 @@ IND_dics = ups.threshold_connections(Cs_dics, threshold_ps, IND);
 
 [Ctx, CtxHR, CtxHHR] = ups.GetCtx(subjID);
 
-con_ps = ups.Connections(subjID, IND_dics_ps, freqBand, t_range, CT, cond_main, HM, CtxHHR);
-con_dics_gcs = ups.Connections(subjID, IND_dics_gcs, freqBand, t_range, CT, cond_main, HM, CtxHHR);
-con_dics = ups.Connections(subjID, IND_dics, freqBand, t_range, CT, cond_main, HM, CtxHHR);
+con_ps = ups.Bundles(IND_dics_ps, HM, CtxHHR);
+con_dics_gcs = ups.Bundles(IND_dics_gcs, HM, CtxHHR);
+con_dics = ups.Bundles(IND_dics, HM, CtxHHR);
 
 plot_dics;

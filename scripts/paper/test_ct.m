@@ -31,5 +31,5 @@ tr = trials.data(:,:,110:120);
 
 ct = ups.CrossSpectralTimeseries(tr, false);
 con_inds = ps.T_PSIICOS(ct, HM.gain, 100);
-con = ups.Connections(subjID, con_inds, [], [], [], cond_main,  HM, CtxHR);
+con = ups.Bundles(con_inds, HM, CtxHR);
 con.Plot();

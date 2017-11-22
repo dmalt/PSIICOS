@@ -43,7 +43,7 @@ threshold = 30;
 % [CS, IND] = ps.PSIICOS_ScanFast(HM.gain, real(CT_proj_from_vc));
 % con_inds = ups.threshold_connections(CS, threshold, IND);
 
-% con = ups.Connections(con_inds, HM, CtxHHR);
+% con = ups.Bundles(con_inds, HM, CtxHHR);
 % % con_c = con.Clusterize(10,0.02);
 % figure;
 % con.Plot(0.2);

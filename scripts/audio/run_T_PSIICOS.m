@@ -41,7 +41,6 @@ end
 % % [INDrap, Cp, Upwr, Cs] = T_PSIICOS((ConData{Condition}.CrossSpecTime), G, rel_threshold, Rnk, SigRnk);
 [INDrap, Cp, Upwr, Cs] = T_PSIICOS((CT), G, rel_threshold, Rnk, SigRnk);
 
-con = Connections(AllSubjects{1}, INDrap, CurBand,...
-		                           TimeRange, CT, num2str(Condition), HM );
+con = Bundles(INDrap, HM, Ctx);
 % 'test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx
 con.PlotCon()

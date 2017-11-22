@@ -61,14 +61,14 @@ for lambda = lambdas
 		% boots_IND_gcs{iCT} = ups.threshold_connections(Cs_gcs, threshold_gcs, IND);
 	end
 
-	con_ps_all = ups.Connections(subjID, boots_IND_ps, freqBand, t_range, [], '2', HM, CtxHR);
+	con_ps_all = ups.Bundles(boots_IND_ps, HM, CtxHR);
 	con_clust_av_ps = con_ps_all.ClustAndAvCells(1,0.02);
 	con_m_ps = con_clust_av_ps.Merge();
 	con_ps{iLambda} = con_m_ps.Clusterize(20, 0.013);
 
 	% con_c_ps.PlotViews(0.2, 2, 0.003);
 
-	% con_gcs_all = ups.Connections(subjID, boots_IND_gcs, freqBand, t_range, [], '2', HM, CtxHR);
+	% con_gcs_all = ups.Bundles(boots_IND_gcs, HM, CtxHR);
 	% con_clust_av_gcs = con_gcs_all.ClustAndAvCells(1,0.02);
 	% con_m_gcs = con_clust_av_gcs.Merge();
 	% con_dics_gcs{iLambda} = con_m_gcs.Clusterize(20, 0.013);
@@ -78,7 +78,7 @@ end
 
 % plot_gcs
 % con_c_gcs.PlotViews(0.2, 2, 0.003);
-% con = ups.Connections(subjID, boots_IND, freqBand, t_range, [], '2', HM, CtxHR);
+% con = ups.Bundles(boots_IND, HM, CtxHR);
 % con_clust_av = con.ClustAndAvCells(1,0.02);
 % con_m = con_clust_av.Merge();
 % con_c = con_m.Clusterize(20, 0.011);
@@ -88,4 +88,4 @@ end
 % CT_final = ps.ProjFromCond(CT_main, CT_proj, 6);
 % CT_final = CT_main;
 % [INDrap, Cp, Upwr, corr] = ps.T_PSIICOS(CT_final, HM.gain, threshold, pwr_rnk, 0, Upwr);
-% con = ups.Connections(subjID, INDrap, freqBand, [], [], '2', HM, CtxHR);
+% con = ups.Bundles(INDrap, HM, CtxHR);

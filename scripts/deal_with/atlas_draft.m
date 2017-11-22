@@ -15,8 +15,8 @@ mask(10) = 1;
 sig_scouts = atlas.Scouts(mask);
 cmap = lines(length(sig_scouts));
 for i = 1:length(sig_scouts)
-	verts_id_sc = sig_scouts(i).Vertices;
-	faces_sc = prune_faces(faces_hr, verts_id_sc);
-	hold on;
-	trisurf(faces_sc, vx_hr, vy_hr, vz_hr, 'EdgeColor', 'None', 'FaceColor', cmap(i,:), 'FaceAlpha', '0.3');
+    verts_id_sc = sig_scouts(i).Vertices;
+    faces_sc = prune_faces(faces_hr, verts_id_sc);
+    hold on;
+    trisurf(faces_sc, vx_hr, vy_hr, vz_hr, 'EdgeColor', 'None', 'FaceColor', cmap(i,:), 'FaceAlpha', '0.3');
 end

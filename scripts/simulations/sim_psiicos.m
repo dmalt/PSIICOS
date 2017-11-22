@@ -37,7 +37,7 @@ toc
 
 ij_ps  = ups.threshold_connections(corr.data, threshold_ps, corr.IND);
 
-con_ps = ups.Connections(ij_ps, HM, Ctx);
+con_ps = ups.Bundles(ij_ps, HM, Ctx);
 con_ps_clust = con_ps.Clusterize(10, 0.02);
 con_ps_av = con_ps_clust.Average();
 con_ps_av.Plot(0.2, 4, 0.004);

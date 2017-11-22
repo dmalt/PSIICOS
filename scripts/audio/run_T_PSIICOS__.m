@@ -31,9 +31,9 @@ rel_threshold = 0.4;
 freqBand = [8,12];
 timeRange = [0, 0.7];
 condName = 'test';
-sim_con = Connections('test', INDrap, freqBand, timeRange, Cp, condName, HM, Ctx);
+sim_con = Bundles(INDrap, HM, Ctx);
 
 sim_con.Plot(0.4)
 % % INDrap = INDrap(1:10:end,:)
 % Ctx = load('/home/dmalt/PSIICOS_osadtchii/anat/0003_pran/tess_cortex_concat.mat');
-% drawConnectionsOnBrain(INDrap, R, 1, Ctx);
+% drawBundlesOnBrain(INDrap, R, 1, Ctx);

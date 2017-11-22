@@ -37,7 +37,7 @@ CT_proj_from_vc = ps.ProjectAwayFromPowerFixedOr(CT_resh(:), HM.gain, pwr_rnk);
 
 con_inds = ups.threshold_connections(CS, threshold, IND);
 
-con = ups.Connections(subj_ID, con_inds, freq_band, time_range, CT, condition, HM, CtxHHR);
+con = ups.Bundles(con_inds, HM, CtxHHR);
 % con_c = con.Clusterize(10,0.02);
 figure;
 con.Plot(0.2);

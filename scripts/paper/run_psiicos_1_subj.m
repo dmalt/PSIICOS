@@ -43,8 +43,7 @@ CT = CT_main;
 
 [IND_music_tot, Cpvec, Upwr, corr, IND_run] = ps.T_PSIICOS(CT, HM.gain,...
                                                            threshold, pwr_rnk, SigRnk, Upwr);
-con = ups.Connections(subjID, IND_music_tot, freqBand,...
-                      t_range, CT, cond_main, HM, CtxHHR);
+con = ups.Bundles(IND_music_tot, HM, CtxHHR);
 % con_c = con.Clusterize(10,0.02);
 figure;
 con.Plot(0.2);

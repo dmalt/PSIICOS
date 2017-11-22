@@ -49,7 +49,7 @@ CT_reshape = reshape(mean(CT, 2), sqrt(size(CT, 1)), sqrt(size(CT, 1)));
 
 con_inds = ups.threshold_connections(CS, threshold, IND);
 
-con = ups.Connections(subjID, con_inds, freqBand, t_range, CT, cond_main, HM, CtxHHR);
+con = ups.Bundles(con_inds, HM, CtxHHR);
 % con_c = con.Clusterize(10,0.02);
 figure;
 con.Plot(0.2);

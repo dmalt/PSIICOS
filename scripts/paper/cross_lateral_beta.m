@@ -37,23 +37,20 @@ IND_music_imag = ps.T_PSIICOS(imag(CT), G, rel_threshold, Rnk, SigRnk, Upwr);
 
 % CtxHR = load('/home/dmalt/PSIICOS_osadtchii/anat/0019_shev/tess_cortex_pial_low_fig.mat')
 
-con = ups.Connections(subjID, IND_music_tot, freqBand,...
-		                           timeRange, CT, num2str(condition), HM, CtxHR);
+con = ups.Bundles(IND_music_tot, HM, CtxHR);
 
 % --------------------- Plotting part --------------------------- %
 subplot(1,3,1)
 con_clust = con.Clusterize(20, 0.02);
 con_clust.Plot(0.5, 1, 0.004)
 
-con_real = ups.Connections(subjID, IND_music_real, freqBand,...
-		                           timeRange, CT, num2str(condition), HM, CtxHR);
+con_real = ups.Bundles(IND_music_real, HM, CtxHR);
 
 subplot(1,3,2)
 con_clust_real = con_real.Clusterize(20, 0.02);
 con_clust_real.Plot(0.5, 1, 0.004)
 
-con_imag = ups.Connections(subjID, IND_music_imag, freqBand,...
-		                           timeRange, CT, num2str(condition), HM, CtxHR);
+con_imag = ups.Bundles(IND_music_imag, HM, CtxHR);
 subplot(1,3,3)
 con_clust_imag = con_imag.Clusterize(20, 0.02);
 con_clust_imag.Plot(0.5, 1, 0.004)

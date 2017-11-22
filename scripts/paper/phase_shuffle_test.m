@@ -63,9 +63,9 @@ end
 p_val = sum(max_cs_surr > max_cs_true) / n_resamples;
 disp(p_val);
 
-con_ps_surr = ups.Connections(subj_ID, INDsurr,  freq_band, time_range, CT, 'test', HM, CtxHHR);
+con_ps_surr = ups.Bundles(INDsurr, HM, CtxHHR);
 con_ps_av = con_ps_surr.Average();
-con_ps_true = ups.Connections(subj_ID, INDtrue,  freq_band, time_range, CT, 'test', HM, CtxHHR);
+con_ps_true = ups.Bundles(INDtrue, HM, CtxHHR);
 
 
 

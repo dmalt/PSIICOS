@@ -1,3 +1,9 @@
+% Bootstrap cross-spetcrum timeseries, then compute SVD
+% on real and imaginary parts on each resample and do
+% FastScan for first 4 components in real and imag parts
+% AUTHOR: dmalt
+% DATE Sun Nov 19 22:14:01 MSK 2017
+% ______________________________________________________
 main
 
 time_range = [0, 1];
@@ -49,7 +55,7 @@ end
 save([band_names{i_band}, '.mat'], 'vs_re', 'vs_im', 'con_inds_re', 'con_inds_im', '-v7.3');
 end
 
-%     con = ups.Connections(con_inds, HM, CtxHHR);
+%     con = ups.Bundles(con_inds, HM, CtxHHR);
 %     con_m = con.Merge();
 %     cc = con_m.Clusterize(1, 0.0001);
 %     cca  = cc.Average();
