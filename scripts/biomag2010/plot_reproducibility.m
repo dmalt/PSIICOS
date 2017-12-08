@@ -1,6 +1,6 @@
 main;
 band_names = {'theta_band', 'alpha_band', 'beta_band', 'lowgamma_band', 'gamma_band'};
-data_dir = './bootstrap_data/';
+data_dir = './bootstrap_data/pwr_rnk_150/';
 save_dir = './pics/bootstrap_pics/';
 n_comps = 4;
 i_band = 3;
@@ -68,6 +68,7 @@ c = categorical({'comp1, theta',...
                  'comp2, gamma2',...
                  'comp3, gamma2',...
                  'comp4, gamma2'}, 'Ordinal', false);
+
 c = reordercats(c, {'comp1, theta',...
                     'comp2, theta',...
                     'comp3, theta',...
@@ -91,7 +92,10 @@ c = reordercats(c, {'comp1, theta',...
 
 
 b = bar(c,[inv_var_re(:), inv_var_im(:)]);
-ylim([0,21]);
+% ylim([0,21]);
 legend('Re', 'Im');
-ylabel('1 / var')
+ylabel('1 / var', 'FontSize', 22);
 % bar(c,inv_var);
+set(gca, 'FontSize', 20);
+export_fig('./var_bars.png', '-png')
+
