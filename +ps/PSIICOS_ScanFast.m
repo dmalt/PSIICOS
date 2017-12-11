@@ -4,7 +4,7 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
 % of cross-spectrum with the forward operator
 % -------------------------------------------------------------------------
 % FORMAT:
-%   [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp) 
+%   [Cs, IND Cs0] = PSIICOS_ScanFast(G2dU, Cp)
 % INPUTS:
 %   G2dU       - {n_sensors x n_sources} matrix of forward model
 %   Cp         - {n_sensors ^ 2 x n_times} or
@@ -12,12 +12,12 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
 %                matrix of timeseries or left singular vectors of
 %                cross-spectrum on sensors
 % OUTPUTS:
-%   Cs         - {(n_sources ^ 2 - n_sources) / 2 x 1} vector of 
+%   Cs         - {(n_sources ^ 2 - n_sources) / 2 x 1} vector of
 %                correlations between source topographies
 %                and forward operator
 %   IND        - {(n_sources ^ 2 - n_sources) / 2 x 2} matrix of
 %                indices to build a mapping between upper
-%                triangle and (i,j) matrix indexing 
+%                triangle and (i,j) matrix indexing
 %                IND(l,:) --> [i,j]
 % ___________________________________________________________________________
 % Alex Ossadtchii, ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
@@ -52,7 +52,7 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     %          aj = G2dU(:, range_j)';
     %         cs = ai * Cp * aj';
     %         [u s v] = svd(cs);
-    %         Cs0(p) = max(diag(s)); 
+    %         Cs0(p) = max(diag(s));
     %          p = p + 1;
     %     end;
     % end;
@@ -63,8 +63,8 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
     for iSrc = 1:Nsrc
         for iComp = 1:n_comp
             Cp_sq = reshape(Cp(:,iComp), Nsns, Nsns);
-            % --- Take iSrc-th location topographies ---- %
-            ai = G2dU(:, iSrc * 2 - 1 : iSrc * 2)';       
+            % ---- Take iSrc-th location topographies ---- %
+            ai = G2dU(:, iSrc * 2 - 1 : iSrc * 2)';
             tmp = ai * Cp_sq;
             cslong = tmp * G2dU;
             if is_imag
@@ -83,8 +83,8 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
         IND(p : p + Nsrc - iSrc - 1, 2) = (iSrc + 1 : Nsrc)';
         IND(p : p + Nsrc - iSrc - 1, 1) = iSrc;
         p = p + Nsrc - iSrc;
-    end;
-    Cs = 0.5 * T + sqrt(0.25 * T .* T - D); 
-    % Cs = sum(Cs, 1);  
-    Cs = max(Cs, [], 1)';    
+    end
+    Cs = 0.5 * T + sqrt(0.25 * T .* T - D);
+    % Cs = sum(Cs, 1);
+    Cs = max(Cs, [], 1)';
 end
