@@ -37,8 +37,8 @@ for iSubj = 1:length(subjNames)
 	CT_m = ups.GetCTS(curName, main_cond, band, tRange, 0.01, protocol_path, true, true);
 	CT_prf = ups.GetCTS(curName, proj_cond, band, tRange, 0.01, protocol_path, true, true);
 
-	CT_m = ps.ProjectAwayFromPowerComplete(CT_m, HM.gain, pwrRnk);
-	CT_prf = ps.ProjectAwayFromPowerComplete(CT_prf, HM.gain, pwrRnk);
+	CT_m = ps.ProjectFromSlComplete(CT_m, HM.gain, pwrRnk);
+	CT_prf = ps.ProjectFromSlComplete(CT_prf, HM.gain, pwrRnk);
 	CT_final{iSubj} = ps.ProjFromCond(CT_m, CT_prf, 6);
 
 	% CT_final{iSubj} = CT_m; 

@@ -139,7 +139,7 @@ for sc = 1:length(ConDataBand)
     ConDataBand{sc}.CrossSpecTime = CrossSpectralTimeseries( ConDataBand{sc}.Trials);
     ConDataBand{sc}.CrossSpecTimeInd = CrossSpectralTimeseries( ConDataBand{sc}.Trials,true);
     % compute their projected versions
-    [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr] = ProjectAwayFromPowerComplete(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,350);
+    [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr] = ps.ProjectFromSlComplete(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,350);
     ConDataBand{sc}.CrossSpecTimeIndP = ConDataBand{sc}.CrossSpecTimeInd - ConDataBand{sc}.Upwr*ConDataBand{sc}.Upwr'*ConDataBand{sc}.CrossSpecTimeInd;
     %UP
     if(bComputePLI)
@@ -161,7 +161,7 @@ if(bStudyRank)
         for sc = 1:length(ConDataBand)
             fprintf('%d Computing cross-spectral matrix ....\n' , sc); 
             % compute their projected versions
-            [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr,ds] = ProjectAwayFromPowerComplete(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,RNK(rnk));
+            [ConDataBand{sc}.CrossSpecTimeP, ConDataBand{sc}.Upwr,ds] = ps.ProjectFromSlComplete(ConDataBand{sc}.CrossSpecTime, ConData{sc}.G2dLRU,RNK(rnk));
             ConDataBand{sc}.CrossSpecTimeIndP = ConDataBand{sc}.CrossSpecTimeInd - ConDataBand{sc}.Upwr*ConDataBand{sc}.Upwr'*ConDataBand{sc}.CrossSpecTimeInd;
             RatInd(sc,rnk) = sum(abs(real(ConDataBand{sc}.CrossSpecTimeIndP(:))))/sum(abs(real(ConDataBand{sc}.CrossSpecTimeInd(:))));
             RatTot(sc,rnk) = sum(abs(real(ConDataBand{sc}.CrossSpecTimeP(:))))/sum(abs(real(ConDataBand{sc}.CrossSpecTime(:))));

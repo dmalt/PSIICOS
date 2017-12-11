@@ -44,7 +44,7 @@ function [corr, Cpvec, Upwr] = PSIICOS_svd_re_im_split(C, G2dU, SL_rnk,...
 % Alex Ossadtchii ossadtchi@gmail.com, Dmitrii Altukhov, dm.altukhov@ya.ru
 
     %% Preparatory steps
-    import ps.ProjectAwayFromPowerComplete
+    import ps.ProjectFromSlComplete
 
     % --- set defaults --- %
     if(nargin < 8)
@@ -92,7 +92,7 @@ function [corr, Cpvec, Upwr] = PSIICOS_svd_re_im_split(C, G2dU, SL_rnk,...
 
     % -- project coherence matrix from signal-leakage subspace -- %
     if isempty(Upwr) && SL_rnk
-        [Cpvec, Upwr] = ProjectAwayFromPowerComplete(C, G2dU, SL_rnk);
+        [Cpvec, Upwr] = ProjectFromSlComplete(C, G2dU, SL_rnk);
     elseif SL_rnk % use the existing matrix if profided
         assert(n_sensors_C ^ 2 == size(Upwr,1),...
                ['INCONSISTENT SIZES: size(C,1) = ',...

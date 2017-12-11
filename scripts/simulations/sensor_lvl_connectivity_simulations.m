@@ -1,5 +1,5 @@
 [HM, CT, Tr, Ctx] = ups.SimulateData(pi/2, 100); %, 0.01, 0.35, 0, true);
-% CTp = ProjectAwayFromPowerComplete(CT, HM.gain);
+% CTp = ProjectFromSlComplete(CT, HM.gain);
 CT = ups.RestoreCTdim(CT, HM.UP);
 
 % CohTS = Cp2Coh(CT);

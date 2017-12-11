@@ -35,7 +35,7 @@ for jTime = 1:n_samples
 end
 
 CP_time_av = CP_time_av / n_samples; 
-CP_time_av = ProjectAwayFromPowerComplete(CP_time_av, G_tang_pca, pwr_rnk);
+CP_time_av = ps.ProjectFromSlComplete(CP_time_av, G_tang_pca, pwr_rnk);
 % ------------------------------------------------------------------------------------ %
 [Cs, IND] = MUSIC_ScanFast(G_tang_pca, real(CP_time_av));
 pairs = get_ij_above_threshold(Cs, 0.3, IND);

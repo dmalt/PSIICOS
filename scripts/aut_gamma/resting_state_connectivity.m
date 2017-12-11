@@ -27,52 +27,52 @@ window_size = 500;
 window_step = 100;
 % - Slide along the recording with a window and compute time-averaged cross-spectrum - %
 if ~exist('CP_time_av.mat', 'file')
-	pwr_rnk = 350;
-	window = 1:window_size;
-	CP_time_av = zeros(n_sensors_reduced ^ 2, fix(n_samples / window_step) + 1);
+    pwr_rnk = 350;
+    window = 1:window_size;
+    CP_time_av = zeros(n_sensors_reduced ^ 2, fix(n_samples / window_step) + 1);
 
-	for iTime = 1:fix(n_samples / window_step)
-		for jTime = window
-			tmp = TS_pca_filt_hilb(:, jTime) * TS_pca_filt_hilb(:, jTime)'; 
-			CP_time_av(:, iTime) = CP_time_av(:, iTime) + tmp(:);  
-		end
-		
-		CP_time_av(:, iTime) = CP_time_av(:, iTime) / window_size; 
-		CP_time_av(:, iTime) = ProjectAwayFromPowerComplete(CP_time_av(:,iTime), G_tang_pca, pwr_rnk);
-		if window(end) + window_step < n_samples
-			window = window + window_step;
-		else 
-			break
-		end
-	end
-	save('CP_time_av.mat', 'CP_time_av');
+    for iTime = 1:fix(n_samples / window_step)
+        for jTime = window
+            tmp = TS_pca_filt_hilb(:, jTime) * TS_pca_filt_hilb(:, jTime)'; 
+            CP_time_av(:, iTime) = CP_time_av(:, iTime) + tmp(:);  
+        end
+        
+        CP_time_av(:, iTime) = CP_time_av(:, iTime) / window_size; 
+        CP_time_av(:, iTime) = ps.ProjectFromSlComplete(CP_time_av(:,iTime), G_tang_pca, pwr_rnk);
+        if window(end) + window_step < n_samples
+            window = window + window_step;
+        else 
+            break
+        end
+    end
+    save('CP_time_av.mat', 'CP_time_av');
 else
-	load('CP_time_av.mat');
+    load('CP_time_av.mat');
 end
 % ------------------------------------------------------------------------------------ %
 if ~exist('pairs.mat', 'file')
-	for iTime = 1:size(CP_time_av, 2)
-		[Cs, IND] = MUSIC_ScanFast(G_tang_pca, CP_time_av(:,iTime));
-		pairs{iTime} = get_ij_above_threshold(Cs, 0.8, IND);
-	end
-	save('pairs.mat', 'pairs');
+    for iTime = 1:size(CP_time_av, 2)
+        [Cs, IND] = MUSIC_ScanFast(G_tang_pca, CP_time_av(:,iTime));
+        pairs{iTime} = get_ij_above_threshold(Cs, 0.8, IND);
+    end
+    save('pairs.mat', 'pairs');
 else
-	load('pairs.mat');
+    load('pairs.mat');
 end
 
 % iWindow = 110
 if ~exist('con_av.mat','file')
-	for iWindow = 1:length(pairs)
-		iWindow
-		con = Connections('K0021', pairs{iWindow}(1:20:end,:), freqBand, [1, window_size], CP_time_av(:,iWindow), 'condition', HM, CtxHR );
+    for iWindow = 1:length(pairs)
+        iWindow
+        con = Connections('K0021', pairs{iWindow}(1:20:end,:), freqBand, [1, window_size], CP_time_av(:,iWindow), 'condition', HM, CtxHR );
 
-		con_clust = con.Clusterize(20, 0.02);
-		con_av{iWindow} = con_clust.Average();
-		% con_av.Plot()
-	end
-	% save('con_av.mat', 'con_av', '-v7.3');
+        con_clust = con.Clusterize(20, 0.02);
+        con_av{iWindow} = con_clust.Average();
+        % con_av.Plot()
+    end
+    % save('con_av.mat', 'con_av', '-v7.3');
 else
-	load('con_av.mat');
+    load('con_av.mat');
 end
 
 

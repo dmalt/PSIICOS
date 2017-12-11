@@ -44,7 +44,7 @@ CT_resh = reshape(mean(CT,2), sqrt(size(CT,1)), sqrt(size(CT,1)));
 figure;
 h = plot_brain_cmap(CtxHHR, Ctx, [], Ps, zeros(size(Ps)), 0.2);
 
-CT_proj_from_vc = ps.ProjectAwayFromPowerComplete(CT_resh(:), HM.gain, pwr_rnk);
+CT_proj_from_vc = ps.ProjectFromSlComplete(CT_resh(:), HM.gain, pwr_rnk);
 [CS, IND] = ps.PSIICOS_ScanFast(HM.gain, (CT_proj_from_vc));
 
 % CT_rand = rand(size(CT_resh)) *  + j * rand(size(CT_resh));

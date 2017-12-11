@@ -24,8 +24,8 @@ for iSubj = 1:length(subjNames)
 
 	HM = LoadHeadModel(curName, cond_main);
 
-	CT_m = CrossSpectralTimeseries(tr_aligned);
-	CT_m = ProjectAwayFromPowerComplete(CT_m, HM.gain);
+	CT_m = ups.conn.CrossSpectralTimeseries(tr_aligned);
+	CT_m = ps.ProjectFromSlComplete(CT_m, HM.gain);
 	CT_m = RestoreCTdim(CT_m, HM.UP);
 
 	conInds_full{iSubj} = GetSensorConnectivity((CT_m), 100);
