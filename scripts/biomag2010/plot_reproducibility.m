@@ -88,7 +88,7 @@ c = reordercats(c, {'comp1, theta',...
                     'comp1, gamma2',...
                     'comp2, gamma2',...
                     'comp3, gamma2',...
-                    'comp4, gamma2'})
+                    'comp4, gamma2'});
 
 
 b = bar(c,[inv_var_re(:), inv_var_im(:)]);
@@ -96,6 +96,7 @@ b = bar(c,[inv_var_re(:), inv_var_im(:)]);
 legend('Re', 'Im');
 ylabel('1 / var', 'FontSize', 22);
 % bar(c,inv_var);
-set(gca, 'FontSize', 20);
+pbaspect([5,1,1]);
+set(gca, 'FontSize', 14);
 export_fig('./var_bars.png', '-png')
 

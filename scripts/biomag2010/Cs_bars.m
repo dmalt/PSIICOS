@@ -10,14 +10,8 @@
 % AUTHOR: dmalt
 % DATE: Sun Nov 19 23:29:25 MSK 2017
 % ____________________________________________________________________
-% main;
+main;
 
-time_range = [0, 1];
-alpha_band = [8,12];
-beta_band = [16,24];
-gamma_band = [65, 85];
-lowgamma_band = [30, 60];
-theta_band = [4,8];
 % n_comps = 4;
 
 bands = {theta_band, alpha_band, beta_band, lowgamma_band, gamma_band};
@@ -27,17 +21,17 @@ calc_CT = memoize(@ups.conn.CrossSpectralTimeseries);
 % proj    = memoize(@ps.ProjectAwayFromPowerComplete);
 msvd    = memoize(@svd);
 
-Upwr = ps.GetUpwrComplete(HM.gain, pwr_rnk);
+% Upwr = ps.GetUpwrComplete(HM.gain, pwr_rnk);
 
 % for i_band = 2:length(band_names)
-    freq_band = bands{i_band};
-    tr_filt= ltr(data_path, time_range, freq_band, HM);
-    CT = calc_CT(tr_filt, true);
+    % freq_band = bands{i_band};
+    % tr_filt= ltr(data_path, time_range, freq_band, HM);
+    % CT = calc_CT(tr_filt, true);
 %     for i_comp = 1:n_comps
 %         tic
-        CT_proj = CT - Upwr * (Upwr' * CT);
-        [u_re,s_re,v_re] = msvd(real(CT_proj));
-        [u_im,s_im,v_im] = msvd(imag(CT_proj));
+        % CT_proj = CT - Upwr * (Upwr' * CT);
+        % [u_re,s_re,v_re] = msvd(real(CT_proj));
+        % [u_im,s_im,v_im] = msvd(imag(CT_proj));
 %         vs_re{i_comp} = v_re(:,i_comp);
 %         vs_im{i_comp} = v_im(:,i_comp);
 %         [CS_re{i_comp}, IND] = ps.PSIICOS_ScanFast(HM.gain, u_re(:,i_comp));
@@ -48,10 +42,10 @@ Upwr = ps.GetUpwrComplete(HM.gain, pwr_rnk);
 %     end
 % save([band_names{i_band}, '.mat'], 'vs_re', 'vs_im', 'con_inds_re', 'con_inds_im', 'CS_re', 'CS_im', '-v7.3');
 % end
-ij = con_re_centers.conInds{1};
-gi = HM.gain(:, ij(1) * 2 - 1 : ij(1) * 2);
-gj = HM.gain(:, ij(2) * 2 - 1 : ij(2) * 2);
-Gij = kron(gi,gj);
+% ij = con_re_centers.conInds{1};
+% gi = HM.gain(:, ij(1) * 2 - 1 : ij(1) * 2);
+% gj = HM.gain(:, ij(2) * 2 - 1 : ij(2) * 2);
+% Gij = kron(gi,gj);
 
 
 main
@@ -116,8 +110,8 @@ i_band = 1;
 % end
 
 
-n_svd = size(u_re,2);
-scorr = zeros(n_svd,1);
-for i = 1:n_svd
-    scorr(i) = ps.subcorr([Gij, Gji], u_im(:,i));
-end
+% n_svd = size(u_re,2);
+% scorr = zeros(n_svd,1);
+% for i = 1:n_svd
+%     scorr(i) = ps.subcorr([Gij, Gji], u_im(:,i));
+% end

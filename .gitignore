@@ -12,3 +12,10 @@ ConData_theta_CT.mat_bckp
 *.dvi
 report.pdf
 report_bckp.pdf
+report_350.pdf
+tags
+pics
+*.gz
+*.fls
+*.fdb_latexmk
+

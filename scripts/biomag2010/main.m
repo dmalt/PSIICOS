@@ -22,6 +22,19 @@ ch_type = 'MEG';
 HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh, ch_type);
 
 
+% ---------------------------- setup freq bands ----------------------------- %
+theta_band = [4,8];
+alpha_band = [8,12];
+beta_band = [16,24];
+gamma_band = [65, 85];
+lowgamma_band = [30, 60];
+lowgamma_delange = [30, 50];
+gamma_delange = [50,80];
+
+bands = {theta_band, alpha_band, beta_band, lowgamma_band, gamma_band, gamma_delange, lowgamma_delange};
+band_names = {'theta_band', 'alpha_band', 'beta_band',...
+              'lowgamma_band', 'gamma_band', 'gamma_delange', 'lowgamma_delange'};
+% -------------------------------------------------------------------------------------- %
 
 % ch_path = '/home/dmalt/bst/brainstorm_db/mentrot/data/biomag2010/@rawdataset02/channel_ctf_acc1.mat';
 % ch = load(ch_path);
@@ -33,10 +46,12 @@ HM = ups.bst.LoadHeadModel(subj_ID, condition, protocol_path, isLR, GainSVDTh, c
 % lambda = 1;
 % [A, Ps] = ups.conn.DICS(CT_resh, HM.gain, lambda);
 [Ctx, CtxHR, CtxHHR] = ups.bst.GetCtx(subj_ID, protocol_path);
+CtxInfl = load([protocol_path, '/anat/biomag2010/tess_cortex_pial_high_fig.mat']);
 % figure;
 % plot_brain_cmap_hemisplit(CtxHR, Ctx, [], Ps, zeros(size(Ps)), 0.2);
 % % plot_brain_cmap(CtxHHR, Ctx, [], Ps, zeros(size(Ps)), 0.2);
 
+% pwr_rnk = 350;
 pwr_rnk = 150;
 threshold = 30;
 % CT_proj_from_vc = ps.ProjectAwayFromPowerFixedOr(CT_resh(:), HM.gain, pwr_rnk);
