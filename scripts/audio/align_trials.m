@@ -11,26 +11,26 @@ tRange = [-0.5,1];
 
 % ----------------------- Without projection, cond 2  --------------------------- %
 for iSubj = 1:length(subjNames)
-	%---------- Align trials ------------%
-	curName = subjNames{iSubj};
-	trials_erp = LoadTrials(curName, cond_main, band_erp, tRange);
-	trials_main = LoadTrials(curName, cond_main, band_tr, tRange);
+    %---------- Align trials ------------%
+    curName = subjNames{iSubj};
+    trials_erp = LoadTrials(curName, cond_main, band_erp, tRange);
+    trials_main = LoadTrials(curName, cond_main, band_tr, tRange);
 
-	trials_data = trials_main.data;
-	trials_data_erp = trials_erp.data;
+    trials_data = trials_main.data;
+    trials_data_erp = trials_erp.data;
 
-	tr_aligned = alignTrials(trials_data_erp, trials_data);
-	%------------------------------------%
+    tr_aligned = alignTrials(trials_data_erp, trials_data);
+    %------------------------------------%
 
-	HM = LoadHeadModel(curName, cond_main);
+    HM = LoadHeadModel(curName, cond_main);
 
-	CT_m = ups.conn.CrossSpectralTimeseries(tr_aligned);
-	CT_m = ps.ProjectFromSlComplete(CT_m, HM.gain);
-	CT_m = RestoreCTdim(CT_m, HM.UP);
+    CT_m = ups.conn.CrossSpectralTimeseries(tr_aligned);
+    CT_m = ps.ProjectFromSlComplete(CT_m, HM.gain);
+    CT_m = RestoreCTdim(CT_m, HM.UP);
 
-	conInds_full{iSubj} = GetSensorConnectivity((CT_m), 100);
-	conInds_real{iSubj} = GetSensorConnectivity(real(CT_m), 100);
-	conInds_imag{iSubj} = GetSensorConnectivity(imag(CT_m), 100);
+    conInds_full{iSubj} = GetSensorConnectivity((CT_m), 100);
+    conInds_real{iSubj} = GetSensorConnectivity(real(CT_m), 100);
+    conInds_imag{iSubj} = GetSensorConnectivity(imag(CT_m), 100);
 end
 
 
