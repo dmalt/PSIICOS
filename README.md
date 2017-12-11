@@ -24,14 +24,15 @@ PSIICOS depends on:
 In LINUX run in terminal:
 
 ```bash
-git clone https://github.com/dmalt/PSIICOS.git && cd $_
+git clone https://github.com/dmalt/PSIICOS.git && cd PSIICOS
 ./install.sh
+cd ..
 ```
 
 In WINDOWS get the package by downloading .zip archive from github,
 extract the files and add path to package folder from inside MATLAB.
 
-To test the installation open matlab, change directory to 
+To test the installation open matlab, change directory to
 `PSIICOS/tests` and run
 
 ```matlab
