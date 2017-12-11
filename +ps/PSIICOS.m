@@ -25,13 +25,13 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
 %   sig_rnk  - scalar; number of components left after
 %              dimensionality reduction of signal subspace
 %              if sig_rnk = 0, use mean of cross-spectrum
-%              across the time domain 
-%   Upwr     - {N_sensors_reduced ^ 2 x SL_rnk} 
-%              SL subspace basis matrix. 
+%              across the time domain
+%   Upwr     - {N_sensors_reduced ^ 2 x SL_rnk}
+%              SL subspace basis matrix.
 %              Columns of Upwr span the VC subspace
-%   seed_ind - 
-%   cp_part  - 
-%   is_fast  - 
+%   seed_ind -
+%   cp_part  -
+%   is_fast  -
 % OUTPUTS:
 %   corr.data  - {1 x Nsrc * (Nsrc - 1) / 2} vector of
 %                correlations between topographies and
@@ -72,8 +72,8 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
             SL_rnk = 350;
         else
             SL_rnk = size(Upwr, 2);
-        end;
-    end;
+        end
+    end
     % ------------------- %
 
 
@@ -82,8 +82,8 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
     n_sensors_G = size(G2dU,1);
 
     % ---------------- check if matrix sizes are ok. --------------- %
-    assert(  n_sensors_C == fix(n_sensors_C),...
-            ['NONSQUARE NUMBER OF ROWS IN C: size(C) = ', num2str(size(C))] ); 
+    assert(n_sensors_C == fix(n_sensors_C),...
+           ['NONSQUARE NUMBER OF ROWS IN C: size(C) = ', num2str(size(C))]);
 
     assert(n_sensors_C == n_sensors_G,...
            ['INCONSISTENT NUMBER OF SENSORS IN C AND G2dU: ',...
@@ -100,7 +100,7 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
         Cpvec = C - Upwr * (Upwr' * C);
     elseif ~SL_rnk
         Cpvec = C;
-    end;
+    end
     % ------------------------------------------------------------ %
 
 
@@ -120,7 +120,7 @@ function [corr, Cpvec, Upwr] = PSIICOS(C, G2dU, SL_rnk,...
         range_i = i * 2 - 1 : i *  2;
         G2dU(:, range_i(1)) = G2dU(:, range_i(1)) / norm(G2dU(:, range_i(1)));
         G2dU(:, range_i(2)) = G2dU(:, range_i(2)) / norm(G2dU(:, range_i(2)));
-    end;
+    end
     % -------------------------------------------------------------------- %
 
     if is_fast
@@ -176,7 +176,7 @@ function [Cs, IND] = honest_corrs(G2dU, Upwr, Cp, seed_ind, cp_part)
                 Cs(p) = get_ij_subcorr(G2dU, Upwr, Cp, i_src, j_src, cp_part);
 
                 if p > 1
-                     for j=0 : log10(p - 1)
+                     for j=0:log10(p - 1)
                          fprintf('\b');
                      end
                 end
@@ -212,7 +212,8 @@ end
 
 function cs = get_ij_subcorr(G2dU, Upwr, Cp, i_src, j_src, cp_part)
 % --------------------------------------------------------------- %
-% Get subspace correlation for [i_src, j_src] network
+% Get subspace correlation for [i_src, j_src] network.
+% Indices i_src and j_src should be different.
 % --------------------------------------------------------------- %
     import ps.subcorr
 
