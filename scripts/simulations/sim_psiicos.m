@@ -5,18 +5,26 @@
 % AUTHOR: dmalt
 % ------------------------------------------ %
 
+% ---------------- simulate data --------------- %
 subjID = 'test';
 % PhaseLag = pi / 20;
 PhaseLag = pi / 2 - pi / 20;
 GainSVDTh = 0.01;
+n_tr = 100;
+snr_induced = 0.5;
+snr_evoked = 0;
+is_use_cache = true;
+is_induced = true;
 
-[HM, CT, Trials, Ctx] = ups.SimulateData(PhaseLag, 100, GainSVDTh, 1, 0, false);
+[HM, ~, Trials, Ctx] = ups.SimulateData(PhaseLag, n_tr, GainSVDTh,...
+                                        snr_induced, snr_evoked, is_use_cache);
+CT = ups.conn.CrossSpectralTimeseries(Trials, is_induced);
+% ------------------------------------------------ %
 
-isLR = true;
 % --- setup psiicos params --- %
 SL_rnk = 350;
 sig_rnk = 0; % corresponds to mean cross-spectrum
-cp_part = 'full';
+cp_part = 'real';
 is_fast = true;
 seed_ind = []; % if empty compute all-to-all
 Upwr = []; % if empty recompute projection from SL
