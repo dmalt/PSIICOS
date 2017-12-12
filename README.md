@@ -24,9 +24,7 @@ PSIICOS depends on:
 In LINUX run in terminal:
 
 ```bash
-git clone https://github.com/dmalt/PSIICOS.git && cd PSIICOS
-./install.sh
-cd ..
+git clone https://github.com/dmalt/PSIICOS.git && cd PSIICOS && ./install.sh && cd ..
 ```
 
 In WINDOWS get the package by downloading .zip archive from github,
