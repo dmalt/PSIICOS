@@ -44,3 +44,12 @@ INSTALLATION SUCCESFUL
 ```
 
 If it didn't, check paths and script install.sh
+
+
+### Run simple simulation setup
+
+Go to PSIICOS/scripts/simulations folder folder and from there run
+```matlab
+sim_psiicos
+```
+
