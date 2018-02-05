@@ -60,47 +60,80 @@ function [Cs, IND] = PSIICOS_ScanFastGPU(G2dU, Cp, is_imag)
     %
     G2dU_gpu = gpuArray(single(G2dU));
     % G2dU_gpu = (single(G2dU));
-    Cs = zeros(1, Nsrc * (Nsrc - 1) / 2, 'single', 'gpuArray');
-    blocksize = 2000;
+    Cs = zeros(Nsrc, 'single', 'gpuArray');
+    blocksize = 1000;
     blocksize_2 = blocksize / 2;
 
 
     % p = 1;
-    jj = 1;
     for iComp = 1:n_comp
-        for ii = 1:15
+        for ii = 1:30
             Cp_sq = gpuArray(single(reshape(Cp(:,iComp), Nsns, Nsns)));
             % Cp_sq =(single(reshape(Cp(:,iComp), Nsns, Nsns)));
-            ss = G2dU_gpu(:, 1 + blocksize * (ii - 1): blocksize * ii)' * Cp_sq * G2dU_gpu;
-            ss_long = ss .* conj(ss);
-            ss_longd = ss(1:2:end,:) .* conj(ss(2:2:end,:));
-            clear ss;
-            c2_11_22 = ss_long(:,1:2:end) + ss_long(:,2:2:end);
-            c2_12_21 = ss_longd(:,1:2:end) + ss_longd(:,2:2:end);
-            clear ss_long;
-            clear ss_longd;
-            c2_12_21 = c2_12_21 .* conj(c2_12_21);
+            % ss = G2dU_gpu(:,1 + blocksize * (ii - 1): blocksize * ii)' * Cp_sq * G2dU_gpu;
+            % a11 = ss(1:2:end,1:2:end);
+            % a22 = ss(2:2:end,2:2:end);
+            % a12 = ss(1:2:end,2:2:end);
+            % a21 = ss(2:2:end,1:2:end);
 
-            T = c2_11_22(1:2:end,:) + c2_11_22(2:2:end,:);
-            mask = triu(true(size(T)), 1 + blocksize_2 * (ii - 1))';
-            T = T';
-            T = T(mask);
-            ll = length(T);
+            a11 = G2dU_gpu(:,1 + blocksize * (ii - 1):2: blocksize * ii)' * Cp_sq * G2dU_gpu(:,1:2:end);
+            a12 = G2dU_gpu(:,1 + blocksize * (ii - 1):2: blocksize * ii)' * Cp_sq * G2dU_gpu(:,2:2:end);
+            a21 = G2dU_gpu(:,2 + blocksize * (ii - 1):2: blocksize * ii)' * Cp_sq * G2dU_gpu(:,1:2:end);
+            a22 = G2dU_gpu(:,2 + blocksize * (ii - 1):2: blocksize * ii)' * Cp_sq * G2dU_gpu(:,2:2:end);
 
-            D = c2_11_22(1:2:end,:) .* c2_11_22(2:2:end,:) - c2_12_21;
-            D = D';
-            D = D(mask);
+            a11_c = conj(a11);
+            a22_c = conj(a22);
+            a12_c = conj(a12);
+            a21_c = conj(a21);
+            % clear ss;
 
-            clear c2_11_22;
-            clear c2_12_21;
-            Cs(jj:jj + ll - 1) = 0.5 * T + sqrt(0.25 * T .* T - D);
-            jj = jj + ll;
-            % Cs =
-            clear T
-            clear D
+            a11_2 = real(a11 .* a11_c);
+            a22_2 = real(a22 .* a22_c);
+            a12_2 = real(a12 .* a12_c);
+            a21_2 = real(a21 .* a21_c);
+
+            ll = 2 * real(a11 .* a22 .* a12_c .* a21_c);
+
+            clear a11;
+            clear a12;
+            clear a22;
+            clear a21;
+            clear a11_c;
+            clear a22_c;
+            clear a12_c;
+            clear a21_c;
+
+            % Cs = abs(0.5 * (a11 + a22) + sqrt(0.25 * (a11 - a22) .^ 2 + a12 .* a21)) .^ 2;
+            Cs(1 + blocksize_2 * (ii - 1): blocksize_2 * ii, :) = (0.5 * (a11_2 + a12_2 + a21_2 + a22_2) + ...
+            sqrt( 0.25 * (a11_2 + a12_2 - a21_2 - a22_2) .^ 2 +  a11_2 .* a21_2 + ll + a22_2 .* a12_2));
+
+            clear a11;
+            clear a22;
+            clear a12;
+            clear a21;
+            % ss = sparce(triu(ss,1));
+            % ss_c = conj(ss);
+            % ss_long = real(ss .* ss_c);
+            % ss_longd = ss(1:2:end,:) .* (ss_c(2:2:end,:));
+            % clear ss;
+            % c2_11_22 = ss_long(:,1:2:end) + ss_long(:,2:2:end);
+            % c2_12_21 = ss_longd(:,1:2:end) + ss_longd(:,2:2:end);
+            % clear ss_long;
+            % clear ss_longd;
+            % c2_12_21 = real(c2_12_21 .* conj(c2_12_21));
+            % T = c2_11_22(1:2:end,:) + c2_11_22(2:2:end,:);
+            % D = c2_11_22(1:2:end,:) .* c2_11_22(2:2:end,:) - c2_12_21;
+            % clear c2_11_22;
+            % clear c2_12_21;
+            % Cs(1 + blocksize_2 * (ii - 1): blocksize_2 * ii, :) = sqrt(0.5 * T + sqrt(0.25 * T .* T - D));
+            % % Cs =
+            % clear T
+            % clear D
         end
+        Cs = gather(Cs);
+        Cs = nonzeros(triu(Cs,1)');
 
-        Cs = gather(Cs)';
+
         % for iSrc = 1:Nsrc
         %     % ---- Take iSrc-th location topographies ---- %
         %     % ai = G2dU(:, iSrc * 2 - 1 : iSrc * 2)';
