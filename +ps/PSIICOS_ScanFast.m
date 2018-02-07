@@ -74,6 +74,7 @@ function [Cs, IND] = PSIICOS_ScanFast(G2dU, Cp, is_imag)
             cs2longd = cslong(1,:) .* conj(cslong(2,:));
             cs2_11_22 = [sum(reshape(cs2long(1,:), 2, Nsrc), 1);...
                          sum(reshape(cs2long(2,:), 2, Nsrc), 1)];
+
             cs2_12_21 = sum(reshape(cs2longd, 2, Nsrc), 1);
             Ti = sum(cs2_11_22, 1);
             Di = prod(cs2_11_22, 1) - cs2_12_21 .* conj(cs2_12_21);

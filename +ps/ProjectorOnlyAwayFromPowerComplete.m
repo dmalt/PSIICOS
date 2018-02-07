@@ -2,13 +2,14 @@ function [Upwr,ds,A] = ProjectorOnlyAwayFromPowerComplete( G2dU, PwrRnk)
 
     if(nargin < 2)
         PwrRnk = 350;
-    end;
+    end
+
     if(nargin < 2)
         disp('use error\n');
         % CTp = [];
         Upwr = [];
         return;
-    end;
+    end
 
     Ns = size(G2dU, 2) / 2; % two topography columns per each source of the grid
     % perform projection of the coherence matrix away from the power only
@@ -27,7 +28,7 @@ function [Upwr,ds,A] = ProjectorOnlyAwayFromPowerComplete( G2dU, PwrRnk)
          A(:,3 * i - 1) = v(:) / norm(v(:));
          v = gi * gj' + gj * gi';
          A(:, 3 * i) = v(:) / norm(v(:));
-    end;
+    end
 
     fprintf('Finding eigen space...\n');
     AA = A * A';

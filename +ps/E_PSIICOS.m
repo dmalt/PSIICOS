@@ -34,9 +34,10 @@ function [INDrap, Cpvec, Upwr, corr, IND] = E_PSIICOS(trials, G2dU, rel_threshol
 % Outline of the algorithm:
 % 1) for each trial compute C
 % 2) project C from leakage
-% 3) for each C estimate lambda = Ai*Aj. Thereby we get products for each trial and each time slice
+% 3) for each C estimate lambda = Ai * Aj. Thereby we get products for each trial and each time slice
 % 4) estimate powers using DICS (We get Ai for each source)
 % 5) compute envelopes correlation averaging across time and maybe trials
+
     import ps.ProjectAwayFromPowerComplete
     import ps.PSIICOS_ScanFast
     import ups.threshold_connections
@@ -49,7 +50,7 @@ function [INDrap, Cpvec, Upwr, corr, IND] = E_PSIICOS(trials, G2dU, rel_threshol
 
     if(nargin < 6)
         Upwr  = [];
-    end;
+    end
 
     if nargin < 5
         SigRnk = 0;
@@ -60,8 +61,8 @@ function [INDrap, Cpvec, Upwr, corr, IND] = E_PSIICOS(trials, G2dU, rel_threshol
             Rnk = 350;
         else
             Rnk = size(Upwr, 2);
-        end;
-    end;
+        end
+    end
 
     Nsrc = size(G2dU, 2) / 2; % two topography columns per each source of the grid
     % Nch = size(G2dU, 1);
@@ -125,7 +126,7 @@ function [INDrap, Cpvec, Upwr, corr, IND] = E_PSIICOS(trials, G2dU, rel_threshol
          range_i = i * 2 - 1 : i *  2;
          G2dU(:, range_i(1)) = G2dU(:, range_i(1)) / norm(G2dU(:, range_i(1)));
          G2dU(:, range_i(2)) = G2dU(:, range_i(2)) / norm(G2dU(:, range_i(2)));
-     end;
+     end
 
     AiAj = zeros(1, (n_sensors ^ 2 - n_sensors) / 2);
     for k = 1:n_times
@@ -156,6 +157,6 @@ function [INDrap, Cpvec, Upwr, corr, IND] = E_PSIICOS(trials, G2dU, rel_threshol
             [~, s, ~] = svd(cs);
             Ps(i,t) = sqrt(s(1,1));
         end
-    end;
+    end
 
 end
