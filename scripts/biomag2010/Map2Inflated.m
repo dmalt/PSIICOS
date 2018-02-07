@@ -1,3 +1,7 @@
+% ----------------------------------------------
+% Map coordinates of a normal cortex to inflated
+% ----------------------------------------------
+
 xyz = HM.GridLoc;
 xyz_hr = CtxInfl.Vertices;
 xyz_mapped = zeros(size(xyz));
@@ -15,3 +19,5 @@ for i_vert_lr = 1:length(HM.GridLoc)
 end
 fprintf('\n');
 toc
+
+save('mapped_loc.mat', 'xyz_mapped', '-v7.3')
