@@ -5,20 +5,27 @@
 % ______________________________________ %
 
 main;
-data_dir = './bootstrap_data/';
-save_dir = './pics/bootstrap_pics/';
+% data_dir = './bootstrap_data/';
+data_dir = './poststim/';
+% save_dir = './pics/bootstrap_pics/';
+save_dir = './pics/poststim/';
 n_comps = 4;
 % i_band = 3;
 % i_comp = 2;
-% for i_band = 1:length(band_names)
-for i_band = 7:length(band_names)
+for i_band = 5:5
+% for i_band = 6:length(band_names)
 % for i_band = 3:3
 % for i_band = 4:4%length(band_names)
     s = load([data_dir, band_names{i_band}, '.mat']);
     % t = load([data_dir, band_names{i_band}, '_fix.mat']);
-    for i_comp = 1:n_comps
+    % for i_comp = 2:n_comps
+    for i_comp = 1:1
     % for i_comp = 1:2
-        con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxInfl);
+        for ii = 1:length(s.con_inds_re)
+            ff_re{ii} = s.con_inds_re{ii}{i_comp};
+        end
+        % con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxInfl);
+        con_re = ups.Bundles(ff_re, HM, CtxInfl);
         % con_re = ups.Bundles(t.con_inds_re{i_comp}, HM, CtxInfl);
         % cc = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
         con_re_av = con_re.Average(false);
@@ -45,12 +52,18 @@ for i_band = 7:length(band_names)
         export_fig([save_dir, figname, '.png'], '-png', '-transparent');
         close(gcf);
 
-        con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxInfl);
+        for ii = 1:length(s.con_inds_im)
+            ff_im{ii} = s.con_inds_im{ii}{i_comp};
+        end
+
+        % con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxInfl);
+        con_im = ups.Bundles(ff_im, HM, CtxInfl);
         % cc = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
         con_im_av = con_im.Average(false);
         con_im_av_clust = con_im_av.Clusterize(0.01);
         % con_im_big = con_im_av_clust.Threshold(10);
         % con_im_centers = con_im_big.Average();
+
         cc = con_re_av_clust([]);
         for i_cl = 1:length(con_im_av_clust.conInds)
             % ---- merge superimposed sticks ----- %
@@ -60,12 +73,6 @@ for i_band = 7:length(band_names)
             cc = cc + ttt;
         end
 
-        % con_im_centers.m_rad(:) = 0.004;
-        % con_im_centers.lwidth(:) = 4;
-        % con_im_av_clust.alpha(:) = 0.4;
-        % con_im_av_clust.lwidth(:) = 1;
-        % con_im_av_clust.m_rad(:) = 0.0015;
-        % con_im_final = con_im_av_clust + con_im_centers;
         con_im_final = cc;
         figname = [band_names{i_band}, '_', num2str(i_comp), '_', 'im'];
             % figure('Name', figname);

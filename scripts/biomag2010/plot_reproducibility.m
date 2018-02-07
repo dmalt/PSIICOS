@@ -1,7 +1,10 @@
 main;
 band_names = {'theta_band', 'alpha_band', 'beta_band', 'lowgamma_band', 'gamma_band'};
-data_dir = './bootstrap_data/pwr_rnk_150/';
-save_dir = './pics/bootstrap_pics/';
+% data_dir = './bootstrap_data/pwr_rnk_150/';
+% data_dir = './poststim/';
+data_dir = './prestim/';
+% save_dir = './pics/bootstrap_pics/';
+save_dir = './pics/prestim/';
 n_comps = 4;
 i_band = 3;
 i_comp = 1;
@@ -12,28 +15,36 @@ for i_band = 1:n_bands
 % for i_band = 4:4%length(band_names)
     s = load([data_dir, band_names{i_band}, '.mat']);
     for i_comp = 1:n_comps
-        con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
+        for ii = 1:length(s.con_inds_re)
+            ff_re{ii} = s.con_inds_re{ii}{i_comp};
+        end
+        % con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
+        con_re = ups.Bundles(ff_re, HM, CtxHHR);
         cm_re = con_re.Merge();
         cm_re.conInds = {ups.CoOrientCluster(cm_re.conInds{1}, HM.GridLoc)};
         [~,~,var_re] = ups.ClustAverage(cm_re.conInds, HM.GridLoc);
 
-        con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
-        cm_re = con_re.Merge();
-        cm_re.conInds = {ups.CoOrientCluster(cm_re.conInds{1}, HM.GridLoc)};
-        [~,~,var_re] = ups.ClustAverage(cm_re.conInds, HM.GridLoc);
+        % con_re = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
+        % cm_re = con_re.Merge();
+        % cm_re.conInds = {ups.CoOrientCluster(cm_re.conInds{1}, HM.GridLoc)};
+        % [~,~,var_re] = ups.ClustAverage(cm_re.conInds, HM.GridLoc);
         inv_var_re(i_comp,i_band) = sqrt(1 / (var_re{1} + var_re{2}));
 
 
+        for ii = 1:length(s.con_inds_im)
+            ff_im{ii} = s.con_inds_im{ii}{i_comp};
+        end
 
-        con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
+        % con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
+        con_im = ups.Bundles(ff_im, HM, CtxHHR);
         cm_im = con_im.Merge();
         cm_im.conInds = {ups.CoOrientCluster(cm_im.conInds{1}, HM.GridLoc)};
         [~,~,var_im] = ups.ClustAverage(cm_im.conInds, HM.GridLoc);
 
-        con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
-        cm_im = con_im.Merge();
-        cm_im.conInds = {ups.CoOrientCluster(cm_im.conInds{1}, HM.GridLoc)};
-        [~,~,var_im] = ups.ClustAverage(cm_im.conInds, HM.GridLoc);
+        % con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
+        % cm_im = con_im.Merge();
+        % cm_im.conInds = {ups.CoOrientCluster(cm_im.conInds{1}, HM.GridLoc)};
+        % [~,~,var_im] = ups.ClustAverage(cm_im.conInds, HM.GridLoc);
         inv_var_im(i_comp,i_band) = sqrt(1 / (var_im{1} + var_im{2}));
         % cc = ups.Bundles(s.con_inds_re{i_comp}, HM, CtxHHR);
         % con_im = ups.Bundles(s.con_inds_im{i_comp}, HM, CtxHHR);
