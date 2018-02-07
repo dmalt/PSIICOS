@@ -54,10 +54,10 @@ parfor i_resamp = 1:length(CTs)
         % idx = gd.Index;
         % disp(['Using GPU', num2str(idx)]);
         % tic
-        CS_re = PSIICOS_ScanFastGPU(HM.gain, u_re(:,i_comp), false, 2000);
+        CS_re = ps.PSIICOS_ScanFastGPU(HM.gain, u_re(:,i_comp), false, 2000);
         con_inds_re{i_resamp}{i_comp} = ups.threshold_connections(CS_re, threshold, IND);
         CS_re = [];
-        CS_im = PSIICOS_ScanFastGPU(HM.gain, u_im(:,i_comp), false, 2000);
+        CS_im = ps.PSIICOS_ScanFastGPU(HM.gain, u_im(:,i_comp), false, 2000);
         con_inds_im{i_resamp}{i_comp} = ups.threshold_connections(CS_im, threshold, IND);
         CS_im = [];
         % toc

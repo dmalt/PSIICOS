@@ -18,4 +18,4 @@ pics
 *.gz
 *.fls
 *.fdb_latexmk
-
+*.tar
