@@ -11,6 +11,7 @@ ConData_theta_CT.mat_bckp
 *.aux
 *.dvi
 report.pdf
+prestim_poststim.pdf
 report_bckp.pdf
 report_350.pdf
 tags
@@ -18,4 +19,5 @@ pics
 *.gz
 *.fls
 *.fdb_latexmk
+*.synctex*
 
