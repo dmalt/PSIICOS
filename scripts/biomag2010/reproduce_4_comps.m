@@ -6,19 +6,25 @@
 % ______________________________________________________
 
 main
+delete(gcp('nocreate'));
+current_pool = parpool('local', 4);
 
-time_range = [0, 1];
+time_range = [0.5, 1];
 % time_range = [-0.5, 1];
 
-ltr     = memoize(@load_trials);
-calc_CT = memoize(@ups.conn.CrossSpectralTimeseries);
-proj    = memoize(@ps.ProjectAwayFromPowerComplete);
-msvd    = memoize(@svd);
+ltr     =(@load_trials);
+calc_CT =(@ups.conn.CrossSpectralTimeseries);
+proj    =(@ps.ProjectAwayFromPowerComplete);
+msvd    =(@svd);
 
 Upwr = ps.GetUpwrComplete(HM.gain, pwr_rnk);
 % Upwr = ps.GetUpwrComplete(HM.gain, 101);
 
-for i_band = 7:length(bands)
+IND = ups.indUpperDiag2mat(length(HM.gain)/2);
+gpuDevice([]);
+con_inds_re = cell(100,4);
+% for i_band = 1:length(bands)
+for i_band = 1:length(bands)
 % freq_band = beta_band;
 freq_band = bands{i_band};
 % freq_band = alpha_band;
@@ -26,31 +32,46 @@ freq_band = bands{i_band};
 tr_filt= ltr(data_path, time_range, freq_band, HM);
 % CT = calc_CT(tr_filt, true);
 % CT = ups.GetFakeCT(size(HM.gain,1), 1200);
-CTs = ups.bootstrap_CT(tr_filt, 100, true);
+tic;CTs = ups.bootstrap_CT(tr_filt, 100, true);toc
 % profile on;
-for i_comp = 1:4
+tic
 % i_comp = 1;
-    for i_resamp = 1:length(CTs)
-        tic
-        CT_proj = CTs{i_resamp} - Upwr * (Upwr' * CTs{i_resamp});
-        % CT_proj = CT - Upwr * (Upwr' * CT);
-        [u_re,~,v_re] = msvd(real(CT_proj));
-        [u_im,~,v_im] = msvd(imag(CT_proj));
-        % [u,s,v] = msvd(imag(CT_proj));
-        % [u,s,v] = msvd(imag(CT));
-        vs_re{i_comp}{i_resamp} = v_re(:,i_comp);
-        vs_im{i_comp}{i_resamp} = v_im(:,i_comp);
-        [CS_re, ~] = ps.PSIICOS_ScanFast(HM.gain, u_re(:,i_comp));
-        [CS_im, IND] = ps.PSIICOS_ScanFast(HM.gain, u_im(:,i_comp));
+parfor i_resamp = 1:length(CTs)
+    % tic
+    CT_proj = CTs{i_resamp} - Upwr * (Upwr' * CTs{i_resamp});
+    % CT_proj = CT - Upwr * (Upwr' * CT);
+    [u_re,~,v_re] = msvd(real(CT_proj));
+    [u_im,~,v_im] = msvd(imag(CT_proj));
+    % [u,s,v] = msvd(imag(CT_proj));
+    % [u,s,v] = msvd(imag(CT));
+    % profile on
+    for i_comp = 1:4
+        vs_re{i_resamp}{i_comp} = v_re(:,i_comp);
+        vs_im{i_resamp}{i_comp} = v_im(:,i_comp);
+        % [CS_re, ~] = ps.PSIICOS_ScanFast(HM.gain, u_re(:,i_comp));
+        % [CS_im, IND] = ps.PSIICOS_ScanFast(HM.gain, u_im(:,i_comp));
+        % gd = gpuDevice;
+        % idx = gd.Index;
+        % disp(['Using GPU', num2str(idx)]);
+        % tic
+        CS_re = ps.PSIICOS_ScanFastGPU(HM.gain, u_re(:,i_comp), false, 2000);
+        con_inds_re{i_resamp}{i_comp} = ups.threshold_connections(CS_re, threshold, IND);
+        CS_re = [];
+        CS_im = ps.PSIICOS_ScanFastGPU(HM.gain, u_im(:,i_comp), false, 2000);
+        con_inds_im{i_resamp}{i_comp} = ups.threshold_connections(CS_im, threshold, IND);
+        CS_im = [];
+        % toc
         % con_inds_re{i_comp}{i_resamp} = ups.threshold_connections(CS_re, threshold, IND);
-        con_inds_re{i_comp}{i_resamp} = ups.threshold_connections(CS_re, threshold, IND);
-        con_inds_im{i_comp}{i_resamp} = ups.threshold_connections(CS_im, threshold, IND);
-        toc
     end
+    % profile viewer
+    % disp(['resample number is ', num2str(i_resamp)]);
+    % toc
 end
+toc
 save([band_names{i_band}, '.mat'], 'vs_re', 'vs_im', 'con_inds_re', 'con_inds_im', 'CTs', '-v7.3');
 end
 
+delete(current_pool)
 return;
 %  Things to check bootstrap solution {{{1 %
     con = ups.Bundles(con_inds_re{1}, HM, CtxInfl);

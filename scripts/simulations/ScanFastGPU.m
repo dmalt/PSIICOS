@@ -9,7 +9,8 @@ subjID = 'test';
 PhaseLag = pi / 2 - pi / 20;
 GainSVDTh = 0.01;
 
-sim = memoize(@ups.SimulateData);
+% sim = memoize(@ups.SimulateData);
+sim = (@ups.SimulateData);
 [HM, CT] = sim(PhaseLag, 100, GainSVDTh, 1, 0, false);
 
 % profile on;
@@ -34,7 +35,7 @@ toc;
 % profile on;
 % profile on;
 tic;
-[CS4, IND] = PSIICOS_ScanFastGPU(gg, (mean(CT,2)), false, 1001);
+[CS4, IND] = PSIICOS_ScanFastGPU(gg, (mean(CT,2)), false, 2000);
 toc;
 % profile viewer
 % toc

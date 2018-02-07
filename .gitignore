@@ -20,4 +20,4 @@ pics
 *.fls
 *.fdb_latexmk
 *.synctex*
-
+*.tar
