@@ -1,8 +1,5 @@
-% Bootstrap cross-spetcrum timeseries, then compute SVD
-% on real and imaginary parts on each resample and do
-% FastScan for first 4 components in real and imag parts
+% Fix bootstrap data after an errorneous run of reproduce_4_comps
 % AUTHOR: dmalt
-% DATE Sun Nov 19 22:14:01 MSK 2017
 % ______________________________________________________
 
 main

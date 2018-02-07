@@ -3,6 +3,7 @@
 fname = 'timeseries_K0021_eo.mat';
 load(fname)
 n_samples = size(timeseries, 2);
+sensors_file = '/home/dmalt/ups/data/channel_vectorview306.mat';
 n_sensors = size(timeseries, 1);
 
 % G_tang = ReduceToTangentSpace(leadfield, 'all');

@@ -16,7 +16,7 @@ isLR = true;
 SL_rnk = 350;
 sig_rnk = 0; % corresponds to mean cross-spectrum
 cp_part = 'full';
-is_fast = false;
+is_fast = true;
 seed_ind = []; % if empty compute all-to-all
 Upwr = []; % if empty recompute projection from SL
 % ---------------------------- %
