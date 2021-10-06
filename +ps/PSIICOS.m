@@ -88,6 +88,14 @@ function [corr, Cpvec, Upwr] = PSIICOS(CT, G2, sl_rnk, sig_rnk, Upwr,...
     n_sensors_C = sqrt(size(CT,1));
     n_sensors_G = size(G2,1);
 
+    % --------------------- normalize forward matrix --------------------- %
+    for i = 1:n_sources
+        range_i = i * 2 - 1 : i *  2;
+        G2(:, range_i(1)) = G2(:, range_i(1)) / norm(G2(:, range_i(1)));
+        G2(:, range_i(2)) = G2(:, range_i(2)) / norm(G2(:, range_i(2)));
+    end
+    % -------------------------------------------------------------------- %
+
     % ---------------- check if matrix sizes are ok. --------------- %
     assert(  n_sensors_C == fix(n_sensors_C),...
             ['NONSQUARE NUMBER OF ROWS IN CT: size(CT) = ', num2str(size(CT))] );
@@ -140,13 +148,6 @@ function [corr, Cpvec, Upwr] = PSIICOS(CT, G2, sl_rnk, sig_rnk, Upwr,...
     end
     % ------------------------------------------------------- %
 
-    % --------------------- normalize forward matrix --------------------- %
-    for i = 1:n_sources
-        range_i = i * 2 - 1 : i *  2;
-        G2(:, range_i(1)) = G2(:, range_i(1)) / norm(G2(:, range_i(1)));
-        G2(:, range_i(2)) = G2(:, range_i(2)) / norm(G2(:, range_i(2)));
-    end
-    % -------------------------------------------------------------------- %
 
     if is_fast
         import ps.PSIICOS_ScanFast

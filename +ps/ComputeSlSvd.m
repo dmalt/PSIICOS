@@ -1,11 +1,11 @@
-function [U, S] = ComputeSlSvd(G2, normalize, loose)
+function [U, S] = ComputeSlSvd(G, normalize, loose)
 % --------------------------------------------------------------------------- %
 % Compute SVD of the signal leakage matrix
 % --------------------------------------------------------------------------- %
 % FORMAT:
-%   [U, S] = ComputeSlSvd(G2, normalize, loose)
+%   [U, S] = ComputeSlSvd(G, normalize, loose)
 % INPUT:
-%   G2      - {n_sensors x n_sources * 2} matrix;
+%   G      - {n_sensors x n_sources * 2} matrix;
 %             MEG loose orientation forward operator
 %             projected to tangential plane
 %   normalize - boolean;
@@ -14,39 +14,30 @@ function [U, S] = ComputeSlSvd(G2, normalize, loose)
 %               if false, treat each of two dipoles per source location
 %               as a separate source
 % OUTPUT:
-%   U      - {n_sensors ^ 2 x rank(SL matrix)}
+%   U      - {n_sensors ^ 2 x n_sensors ^ 2}
 %            matrix of left singular vectors of signal leakage matrix
-%   S      - {rank{SL matrix} x rank(SL matrix)}
+%   S      - {n_sensors ^ 2 x n_sensors ^ 2}
 %            diagonal matrix of singular values of the signal leakage matrix
 % ___________________________________________________________________________ %
 
-    n_src = size(G2, 2) / 2; % in G2 we have two topography columns per source
-    n_sen = size(G2, 1);
 
-    % project for each potential source
-    fprintf('Collecting signal leakage subspace...\n');
-    if loose
-        A = zeros(n_sen ^ 2, n_src * 3);
-        for i = 1:n_src
-             gi = G2(:, 2 * i - 1);
-             gj = G2(:, 2 * i);
-
-             A(:, 3 * i - 2) = kron(gi, gi);
-             A(:, 3 * i - 1) = kron(gj, gj);
-             A(:, 3 * i) = kron(gi, gj) + kron(gj, gi);
-         end
-    else
-        A = zeros(n_sen ^ 2, n_src * 2);
-        for i = 1 : n_src * 2
-             gi = G2(:, i);
-             A(:, i) = kron(gi, gi);
-         end
-    end
-
-     if normalize
-         A = A ./ sum(A .* 2, 1); % normalize each column
-     end
-
+    A = +ps.assemble_sl_matrix(G, normalize, loose);
     fprintf('Finding eigen space...\n');
-    [U, S] = svd(A, 'econ');
+    % A = [A, ones(size(A, 1), 1) * norm(A)];
+
+    n_sen = size(G, 1);
+    n_symm = n_sen * (n_sen + 1) / 2;
+    n_antisymm = n_sen * (n_sen - 1) / 2;
+    % set indices for lower triang part in vectorized matrix
+    A_tril = convert2tril(A);
+    [U_tril, S_tril] = svd(A_tril);
+
+    U_symm = convert2mat(U_tril, 'symm');
+    U_antisymm = convert2mat(U_tril(:, 1:n_antisymm), 'antisymm');
+    U = [U_symm, U_antisymm];
+
+    S = zeros(size(A));
+    S(1:n_symm, :) = S_tril;
+
+    fprintf('Done\n');
 end
